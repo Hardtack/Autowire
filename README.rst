@@ -1,6 +1,18 @@
 Autowire
 ========
 
+.. image:: https://img.shields.io/pypi/v/Autowire.svg 
+    :alt: PyPI Package Version
+    :target: https://pypi.python.org/pypi/Autowire
+
+.. image:: http://readthedocs.org/projects/autowire/badge/?version=latest
+    :alt: Documentation Status
+    :target: http://autowire.readthedocs.org/en/latest/?badge=latest
+
+.. image:: https://img.shields.io/travis/Hardtack/Autowired.svg
+    :alt: Build Status
+    :target: https://travis-ci.org/Hardtack/Autowire
+
 Autowire is light & simple dependency injection library for Python.
 
 You can use dependency injection & resource management without any classes and any magics.
@@ -13,6 +25,12 @@ Requirements
 ------------
 
 Python 3+ (Tested in Python3.6)
+
+
+Documentation
+=============
+
+http://autowire.readthedocs.io/en/latest/
 
 
 Basic Resource Management

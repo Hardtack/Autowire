@@ -79,7 +79,7 @@ class Context(BaseContext):
                           *dependencies: BaseResource,
                           decorators=(), shared: bool=False):
         """
-        Provide implementation with autowired dependencies :.:
+        Provide implementation with autowired dependencies ::
 
             @context.provide_autowired(resource, dependency1, dependency2)
             @contextlib.contextmanager
