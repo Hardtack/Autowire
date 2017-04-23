@@ -4,9 +4,7 @@ python:
  - "3.5"
  - "3.4"
 env:
- - TOX_ENV=py34-travis
- - TOX_ENV=py35-travis
- - TOX_ENV=py36-travis
+ - TOX_ENV=travis
  - TOX_ENV=docs
 install:
  - pip install tox
