@@ -26,20 +26,14 @@ class PyTest(TestCommand):
 
 setup(
     name='Autowire',
-    version='0.1.0',
     packages=setuptools.find_packages(exclude=['tests']),
-    url='https://github.com/hardtack/autowire',
-    license='MIT LICENSE',
+    version='0.1.0',
+    description="Simple dependency injection.",
     author='Geonu Choi',
     author_email='6566gun@gmail.com',
-    description="Simple dependency injection.",
-    install_requires=[],
-
-    # Test
-    test_requires=[
-        'pytest',
-    ],
-
+    url='https://github.com/hardtack/autowire',
+    license='MIT LICENSE',
+    keywords=['dependency-injection'],
     # Cmd
     cmdclass={
         'test': PyTest,
