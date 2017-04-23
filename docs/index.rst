@@ -9,7 +9,7 @@ Autowire
     :alt: Documentation Status
     :target: http://autowire.readthedocs.org/en/latest/?badge=latest
 
-.. image:: https://img.shields.io/travis/Hardtack/Autowired.svg
+.. image:: https://img.shields.io/travis/Hardtack/Autowire.svg
     :alt: Build Status
     :target: https://travis-ci.org/Hardtack/Autowire
 
