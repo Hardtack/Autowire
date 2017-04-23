@@ -5,8 +5,14 @@ Autowire is light & simple dependency injection library for Python.
 
 You can use dependency injection & resource management without any classes and any magics.
 
-Since python already support nice context manager ([PEP343](https://www.python.org/dev/peps/pep-0343/)),
+Since python already support nice context manager (`PEP343`_),
 we don't have to any extra interfaces for setting-up & tearing-down resource.
+
+
+.. _PEP343: https://www.python.org/dev/peps/pep-0343/
+
+
+This is how to define resources in `Autowire`.
 
 .. code-block:: python
 
@@ -28,6 +34,19 @@ we don't have to any extra interfaces for setting-up & tearing-down resource.
             conn.rollback()
         finally:
             conn.close()
+
+
+This is how to resolve resource implementations.
+
+.. code-block:: python
+
+    from autowire import Context
+
+    context = Context()
+
+    with context.resolve(db_connection) as conn:
+        conn.execute('SELECT * FROM ...')
+        ...
 
 
 Table of Contents
