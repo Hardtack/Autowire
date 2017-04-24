@@ -12,6 +12,11 @@ Autowire
 .. image:: https://img.shields.io/travis/Hardtack/Autowire.svg
     :alt: Build Status
     :target: https://travis-ci.org/Hardtack/Autowire
+    
+.. image:: https://img.shields.io/github/stars/hardtack/autowire.svg?style=social&label=Star
+    :alt: GitHub Stars
+    :target: https://github.com/Hardtack/Autowire
+    
 
 Autowire is light & simple dependency injection library for Python.
 
@@ -88,3 +93,12 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+External Links
+==============
+
+* `GitHub Repository <https://github.com/Hardtack/Autowire>`_
+
+* `Travis Build <https://travis-ci.org/Hardtack/Autowire>`_
+
+* `PyPI Package <https://pypi.python.org/pypi/Autowire>`_
