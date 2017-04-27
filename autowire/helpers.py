@@ -58,6 +58,71 @@ def shared(impl):
 
     Shared resource shares contexxt using reference counting.
     When you try to resolve shared resource that already resolve but not teared
+    down, It brings previously resolved resouce. ::
+
+        from contextlib import contextmanager
+
+        from autowire import Context, Resource
+        from autowire.decorators import shared
+
+        dog = Resource('dog', __name__)
+        walk = Resource('walk', __name__)
+
+        @dog.impl
+        @shared
+        @contextmanager
+        def with_dog(context):
+            print("Dog is entering")
+            try:
+                yield "🐶"
+            finally:
+                print("Dog leaved")
+
+        @walk.impl
+        @contextmanager
+        def with_walking(context):
+            with context.resolve(dog) as dog_value:
+                yield "Walking with {}".format(dog_value)
+
+        context = Context()
+
+        with context.resolve(walk) as message:
+            print(message)
+            with context.resolve(dog) as dog_value:
+                print("Feeding {}".format(dog_value))
+
+        # Output:
+        # Dog is entering
+        # Walking with 🐶
+        # Feeding 🐶
+        # Dog leaved
+
+    """
+
+    counters = {}
+
+    @functools.wraps(impl)
+    @contextlib.contextmanager
+    def wrapper(context: BaseContext):
+        if context not in counters:
+            counters[context] = RefCounter(impl(context))
+        counter = counters[context]
+        try:
+            with counter as value:
+                yield value
+        finally:
+            if counter.count == 0:
+                del counters[context]
+    return wrapper
+
+
+def globally_shared(impl):
+    """
+    Convert implementation to globally shared resource implementation.
+    Which "globally shared" means resource is shared in providing context.
+
+    Shared resource shares contexxt using reference counting.
+    When you try to resolve shared resource that already resolve but not teared
     down, It brings previously resolved resouce.
 
     The resource will be tied into resource's providing context.
@@ -68,7 +133,7 @@ def shared(impl):
         res2 = Resource('res2', __name__)
 
         @res2.impl
-        @shared
+        @globally_shared
         @contextlib.contextmanager
         def with_res1(context):
             with context.resolve(res2) as res1_factory:

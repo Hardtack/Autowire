@@ -21,3 +21,4 @@ def autowired(*dependencies: BaseResource):
 
 # It already has decorator interface
 shared = helpers.shared
+globally_shared = helpers.globally_shared

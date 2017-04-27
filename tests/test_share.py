@@ -2,8 +2,9 @@ import contextlib
 
 import pytest
 
-from autowire import Resource, Context, ResourceNotProvidedError
-from autowire.helpers import shared
+from autowire import Resource, Context
+from autowire.exc import ResourceNotProvidedError
+from autowire.decorators import globally_shared, shared
 
 
 def test_shared():
@@ -57,22 +58,44 @@ def test_shared_autowire():
         assert 2 == value
 
 
-def test_shared_not_provided():
+def test_globally_shared():
     number = Resource('number', __name__)
-    square = Resource('square', __name__)
 
     context = Context()
 
-    @context.provide_from_func(square, number, decorators=[shared])
-    def square_value(value):
-        return value * value
+    counter = 0
+
+    @number.impl
+    @globally_shared
+    @contextlib.contextmanager
+    def get_next_number(context):
+        nonlocal counter
+        counter += 1
+        yield counter
+
+    child = Context(context)
+
+    with child.resolve(number) as value1, context.resolve(number) as value2:
+        assert 1 == value1
+        assert 1 == value2
+
+
+def test_globally_shared_failure():
+    number = Resource('number', __name__)
+    double = Resource('double', __name__)
+
+    context = Context()
+
+    @number.from_func(number, decorators=[globally_shared])
+    def get_doubled(number):
+        return number * 2
 
     child = Context(context)
 
     @child.provide_from_func(number)
-    def get_three():
-        return 3
+    def get_one(context):
+        return 1
 
     with pytest.raises(ResourceNotProvidedError):
-        with child.resolve(square):
+        with child.resolve(double):
             pass
