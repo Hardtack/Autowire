@@ -6,11 +6,11 @@ Resource implementations.
 
 """
 import contextlib
-import functools
 
 from autowire.base import BaseContext, BaseResource
 from autowire.exc import ResourceNotProvidedError
-from autowire.utils import autowire
+from autowire.decorators import autowired
+from autowire.utils import apply_decorators, as_contextmanager
 
 
 def create_default_impl(name: str, namespace: str):
@@ -44,6 +44,24 @@ class Resource(BaseResource):
     def default_implementation(self, default_implementation):
         self._default_implementation = default_implementation
 
+    def impl(self, implementation, decorators=()):
+        """Set default implementation of resource."""
+        self.default_implementation = implementation
+        return implementation
+
+    def with_decorators(self, *decorators):
+        """
+        Set default implementation with decorators.
+        It sets implementation with decorators but returns original function
+        not decorated function so that does not change function's interface.
+
+        """
+        def decorator(fn):
+            decorated = apply_decorators(fn, decorators)
+            self.impl(decorated)
+            return fn
+        return decorator
+
     def autowired(self, *dependencies: BaseResource, decorators=()):
         """
         Set default implementation to resource. ::
@@ -61,23 +79,7 @@ class Resource(BaseResource):
                 return dependency.make_resource()
 
         """
-        def decorator(fn):
-            impl = autowire(fn, *dependencies)
-
-            # Apply decorators
-            for decorator in decorators:
-                impl = decorator(impl)
-            self.impl(impl)
-
-            return fn
-        return decorator
-
-    def impl(self, implementation):
-        """
-        Set default implementation of resource.
-        """
-        self.default_implementation = implementation
-        return implementation
+        return self.with_decorators(autowired(*dependencies), *decorators)
 
     def from_func(self, *dependencies, decorators=()):
         """
@@ -88,11 +90,8 @@ class Resource(BaseResource):
                 return os.path.join(dependency, 'resource.json')
 
         """
-        def decorator(fn):
-            @self.autowired(*dependencies, decorators=decorators)
-            @contextlib.contextmanager
-            @functools.wraps(fn)
-            def impl(*args, **kwargs):
-                yield fn(*args, **kwargs)
-            return fn
-        return decorator
+        return self.with_decorators(
+            as_contextmanager,
+            autowired(*dependencies),
+            *decorators
+        )

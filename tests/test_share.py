@@ -3,6 +3,7 @@ import contextlib
 import pytest
 
 from autowire import Resource, Context, ResourceNotProvidedError
+from autowire.helpers import shared
 
 
 def test_shared():
@@ -12,7 +13,8 @@ def test_shared():
 
     count = 0
 
-    @context.shared(counter)
+    @context.provide(counter)
+    @shared
     @contextlib.contextmanager
     def increase_and_get_count(context):
         nonlocal count
@@ -39,7 +41,8 @@ def test_shared_autowire():
 
     count = 0
 
-    @context.shared(counter)
+    @context.provide(counter)
+    @shared
     @contextlib.contextmanager
     def increase_and_get_count(context):
         nonlocal count
@@ -60,7 +63,7 @@ def test_shared_not_provided():
 
     context = Context()
 
-    @context.provide_from_func(square, number, shared=True)
+    @context.provide_from_func(square, number, decorators=[shared])
     def square_value(value):
         return value * value
 

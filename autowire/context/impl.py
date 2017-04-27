@@ -5,11 +5,11 @@ autowire.context.impl
 Context's implementations
 
 """
-import contextlib
-import functools
+import itertools
 
 from autowire.base import BaseContext, BaseResource
-from autowire.utils import autowire, RefCounter
+from autowire.decorators import autowired
+from autowire.utils import apply_decorators, as_contextmanager
 
 from .root import root_context
 
@@ -53,9 +53,16 @@ class Context(BaseContext):
             return implementation
         return decorator
 
+    def provide_with_decorators(self, resource, *decorators):
+        def decorator(fn):
+            decorated = apply_decorators(fn, decorators)
+            self.provide(resource)(decorated)
+            return fn
+        return decorator
+
     def provide_from_func(self, resource: BaseResource,
                           *dependencies: BaseResource,
-                          decorators=(), shared: bool=False):
+                          decorators=()):
         """
         Provide resource from function implementation. ::
 
@@ -64,20 +71,17 @@ class Context(BaseContext):
                 return os.path.join(dependency, 'resource.json')
 
         """
-        def decorator(fn):
-            @self.provide_autowired(resource, *dependencies,
-                                    decorators=decorators,
-                                    shared=shared)
-            @contextlib.contextmanager
-            @functools.wraps(fn)
-            def impl(*args, **kwargs):
-                yield fn(*args, **kwargs)
-            return fn
-        return decorator
+
+        return self.provide_with_decorators(
+            resource,
+            as_contextmanager,
+            autowired(*dependencies),
+            *decorators
+        )
 
     def provide_autowired(self, resource: BaseResource,
                           *dependencies: BaseResource,
-                          decorators=(), shared: bool=False):
+                          decorators=()):
         """
         Provide implementation with autowired dependencies ::
 
@@ -87,69 +91,8 @@ class Context(BaseContext):
                 yield dependency1.make_resource(dependency2)
 
         """
-        def decorator(fn):
-            implementation = autowire(fn, *dependencies)
-            for decorator in decorators:
-                implementation = decorator(implementation)
-            if shared:
-                self.shared(resource)(implementation)
-            else:
-                self.provide(resource)(implementation)
-
-            return fn
-        return decorator
-
-    def shared(self, resource: BaseResource):
-        """
-        Provide a resource shared in this context & its childrend.
-
-        The resource will be tied into this context. It means that children's
-        context will not be able to be used in this resource. ::
-
-            res1 = Resource('res1', __name__)
-            res2 = Resource('res2', __name__)
-
-            @res2.autowire(res1)
-            @contextlib.contextmanager
-            def with_res1(res2):
-                res1 = res2.create_res1()
-                try:
-                    yield res1
-                finally:
-                    res1.teardown()
-
-            context = Context()
-            context.share(res1)
-
-            child = Context(context)
-
-            @child.autowired(res2)
-            def with_res2():
-                yield ...
-
-            # Get ResourceNotProvidedError,
-            # even though child provides res2.
-            # Because res1 was shared in parent.
-            with child.resolve(res1):
-                ...
-
-        """
-        def decorator(impl):
-            counter = None
-
-            @self.provide(resource)
-            @contextlib.contextmanager
-            def wrapper(context: BaseContext):
-                nonlocal counter
-                if counter is None:
-                    provider = context.provided_by(resource)  # Find me
-                    counter = RefCounter(impl(provider))
-                try:
-                    with counter as value:
-                        yield value
-                finally:
-                    if counter.count == 0:
-                        counter = None
-            return impl
-
-        return decorator
+        return self.provide_with_decorators(
+            resource,
+            autowired(*dependencies),
+            *decorators
+        )

@@ -8,46 +8,6 @@ Common utilities.
 import contextlib
 import functools
 
-from autowire.base import BaseContext, BaseResource
-
-
-def autowire(fn, *dependencies: BaseResource):
-    """
-    Convert plain contextmanager to resource implementation by autowiring
-    dependencies. ::
-
-        foo = Resource('foo', __name__)
-        bar = Resource('bar', __name__)
-
-        @contextlib.contextmanager
-        def with_foo(bar):
-            value = baz(bar)
-            try:
-                yield value
-            finally:
-                value.teardown()
-
-        impl = autowire(with_foo, bar)  # Convert to implementation.
-        foo.impl(impl)
-
-    """
-    @contextlib.contextmanager
-    def implementation(context: BaseContext):
-        # Resolve dependencies using context.
-        def with_dependencies(fn, dependencies):
-            if dependencies:
-                first = dependencies[0]
-                rest = dependencies[1:]
-                with context.resolve(first) as value:
-                    fn = functools.partial(fn, value)
-                    yield from with_dependencies(fn, rest)
-            else:
-                with fn() as value:
-                    yield value
-        # Call implemenation with autowired resources.
-        yield from with_dependencies(fn, dependencies)
-    return implementation
-
 
 class RefCounter(object):
     """Preserve context until it has any references."""
@@ -74,3 +34,31 @@ class RefCounter(object):
 
     def __exit__(self, exc_type, exc_value, tb):
         self.decrease(exc_type, exc_value, tb)
+
+
+def apply_decorators(fn, decorators):
+    """Apply multiple decorators at once."""
+    for decorator in decorators:
+        fn = decorator(fn)
+    return fn
+
+
+def as_contextmanager(fn):
+    """
+    Convert to context manager. ::
+
+        @as_contextmanager
+        def foo(name):
+            return 'Hello, {}'.format(name)
+
+    is equivalent to ::
+
+        @contextlib.contextmanager
+        def foo(name):
+            yield 'Hello, {}'.format(name)
+    """
+    @functools.wraps(fn)
+    @contextlib.contextmanager
+    def wrapper(*args, **kwargs):
+        yield fn(*args, **kwargs)
+    return wrapper
