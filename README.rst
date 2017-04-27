@@ -13,7 +13,7 @@ Autowire
     :alt: Build Status
     :target: https://travis-ci.org/Hardtack/Autowire
 
-Autowire is light & simple dependency injection library for Python.
+Autowire is lightweight & simple dependency injection library for Python.
 
 You can use dependency injection & resource management without any classes and any magics.
 

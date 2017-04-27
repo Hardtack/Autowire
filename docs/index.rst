@@ -76,6 +76,7 @@ You can find more guides from following list:
 
    basics
    use-cases
+   shared
 
 
 API References
