@@ -58,6 +58,13 @@ class BaseResource(object, metaclass=abc.ABCMeta):
     def default_implementation(self):
         pass
 
+    def __repr__(self):
+        return "{cls}({name!r}, {namespace!r})".format(
+            cls=type(self).__name__,
+            name=self.name,
+            namespace=self.namespace
+        )
+
 
 class BaseContext(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
