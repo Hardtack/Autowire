@@ -14,7 +14,7 @@ class _RootContext(BaseContext):
     """
     Root context.
     """
-    def get_resource_impl(self, resource: BaseResource):
+    def get_implementation(self, resource: BaseResource):
         """Get resource implementation from this context."""
         return resource.default_implementation
 

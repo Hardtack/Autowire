@@ -33,16 +33,18 @@ This is how to define resources in `Autowire`.
 
 .. code-block:: python
 
-    from autowire import Resource
-    from contextlib import contextmanager
+    import contextlib
+    from autowire import Resource, impl
 
     # Define resources
     db_connection_factory = Resource('db_connection_factory', __name__)
     db_connection = Resource('db_connection', __name__)
 
     # Implement db_connection resource
-    @db_connection.autowire(db_connection_factory)
-    @contextmanager
+    # db_connection is resource to be implemented,
+    # db_connection_factory is resource to be injected.
+    @impl.contextual(db_connection, db_connection_factory)
+    @contextlib.contextmanager
     def with_db_connection(db_connection_factory):
         conn = db_connection_factory()
         try:
@@ -74,7 +76,7 @@ You can find more guides from following list:
 .. toctree::
    :maxdepth: 1
 
-   basics
+   getting-started
    use-cases
    shared
 

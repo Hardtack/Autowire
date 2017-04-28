@@ -64,13 +64,13 @@ If you want to have only one resource per whole contexts, you can do that with
 
     from contextlib import contextmanager
 
-    from autowire import Context, Resource
+    from autowire import Context, Resource, impl
     from autowire.decorators import shared
 
     dog = Resource('dog', __name__)
     walk = Resource('walk', __name__)
 
-    @dog.impl
+    @impl.implement(dog)
     @globally_shared
     @contextmanager
     def with_dog(context):
@@ -80,7 +80,7 @@ If you want to have only one resource per whole contexts, you can do that with
         finally:
             print("Dog leaved")
 
-    @walk.impl
+    @impl.implement(walk)
     @contextmanager
     def with_walking(context):
         with context.resolve(dog) as dog_value:
@@ -101,7 +101,7 @@ If you want to have only one resource per whole contexts, you can do that with
     # Dog leaved
 
 Since, globally shared resource can be only defined on providing context, it can't use
-children context's resources. ::
+children context's resources.
 
 .. code-block:: python
 
@@ -113,7 +113,7 @@ children context's resources. ::
     dog = Resource('dog', __name__)
     walk = Resource('walk', __name__)
 
-    @walk.impl
+    @impl.implement(walk)
     @globally_shared
     @contextmanager
     def with_walking(context):
@@ -124,7 +124,7 @@ children context's resources. ::
     child = Context(context)
 
     # Provide dog
-    @child.provide(dog)
+    @impl.implement(child(dog))
     @contextmanager
     def with_dog(context):
         yield "🐶"

@@ -4,10 +4,10 @@ autowire\.resource package
 Submodules
 ----------
 
-autowire\.resource\.impl module
--------------------------------
+autowire\.resource\.utils module
+--------------------------------
 
-.. automodule:: autowire.resource.impl
+.. automodule:: autowire.resource.utils
     :members:
     :undoc-members:
     :show-inheritance:

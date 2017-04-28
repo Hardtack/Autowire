@@ -68,7 +68,7 @@ class BaseResource(object, metaclass=abc.ABCMeta):
 
 class BaseContext(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def get_resource_impl(self, resource: BaseResource):
+    def get_implementation(self, resource: BaseResource):
         """Get resource implementation from this context."""
         pass
 
@@ -85,4 +85,4 @@ class BaseContext(object, metaclass=abc.ABCMeta):
     def find_resource_impl(self, resource: BaseResource):
         """Find resource implementation from this context and its parents."""
         context = self.provided_by(resource)
-        return context.get_resource_impl(resource)
+        return context.get_implementation(resource)

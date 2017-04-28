@@ -4,10 +4,10 @@ autowire\.context package
 Submodules
 ----------
 
-autowire\.context\.impl module
-------------------------------
+autowire\.context\.provider module
+----------------------------------
 
-.. automodule:: autowire.context.impl
+.. automodule:: autowire.context.provider
     :members:
     :undoc-members:
     :show-inheritance:

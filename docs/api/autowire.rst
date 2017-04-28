@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     autowire.context
+    autowire.impl
     autowire.resource
 
 Submodules

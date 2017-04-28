@@ -2,13 +2,13 @@ import contextlib
 
 import pytest
 
-from autowire import Resource, Context, ResourceNotProvidedError
+from autowire import Resource, Context, ResourceNotProvidedError, impl
 
 
 def test_resource():
     resource = Resource('resource', __name__)
 
-    @resource.impl
+    @impl.implement(resource)
     @contextlib.contextmanager
     def resource_impl(context):
         yield 'Hello'
@@ -19,10 +19,10 @@ def test_resource():
         assert 'Hello' == value
 
 
-def test_from_func():
+def test_plain():
     hello = Resource('hello', __name__)
 
-    @hello.from_func()
+    @impl.plain(hello)
     def get_resource():
         return 'Hello'
 
@@ -48,7 +48,7 @@ def test_provide():
     parent = Context()
     child = Context(parent)
 
-    @child.provide_from_func(env)
+    @impl.plain(child(env))
     def get_env():
         return 'development'
 
@@ -66,11 +66,11 @@ def test_scope():
     parent = Context()
     child = Context(parent)
 
-    @parent.provide_from_func(level)
+    @impl.plain(parent(level))
     def parent_level():
         return 1
 
-    @child.provide_from_func(level)
+    @impl.plain(child(level))
     def child_level():
         return 2
 
