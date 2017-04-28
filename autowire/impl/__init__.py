@@ -46,8 +46,7 @@ def plain(target: Implementable, *dependencies, decorators=()):
         target,
         as_contextmanager,
         autowired(*dependencies),
-        *decorators,
-    )
+        *decorators)
 
 
 def with_decorators(target: Implementable, *decorators):

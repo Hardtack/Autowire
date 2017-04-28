@@ -27,7 +27,7 @@ we don't have to any extra interfaces for setting-up & tearing-down resource.
 Requirements
 ------------
 
-Python 3+ (Tested in Python3.6)
+Python 3.4+
 
 
 Documentation
