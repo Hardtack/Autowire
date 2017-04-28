@@ -6,18 +6,8 @@ Base definitions of autowire.
 
 """
 import abc
-import sys
 
-MAJOR, MINOR = sys.version_info[:2]
-PY33 = MAJOR == 3 and MINOR >= 3
-
-
-# abc.abstractproperty was deprecated since Python 3.3
-if PY33:
-    def abstractproperty(getter):
-        return property(abc.abstractmethod(getter))
-else:
-    abstractproperty = abc.abstractproperty
+from autowire._compat import abstractproperty
 
 
 class BaseResource(object, metaclass=abc.ABCMeta):
@@ -68,7 +58,7 @@ class BaseResource(object, metaclass=abc.ABCMeta):
 
 class BaseContext(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def get_resource_impl(self, resource: BaseResource):
+    def get_implementation(self, resource: BaseResource):
         """Get resource implementation from this context."""
         pass
 
@@ -85,4 +75,4 @@ class BaseContext(object, metaclass=abc.ABCMeta):
     def find_resource_impl(self, resource: BaseResource):
         """Find resource implementation from this context and its parents."""
         context = self.provided_by(resource)
-        return context.get_resource_impl(resource)
+        return context.get_implementation(resource)

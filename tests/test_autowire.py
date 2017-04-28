@@ -1,14 +1,14 @@
 import contextlib
 import os
 
-from autowire import Resource, Context
+from autowire import Resource, Context, impl
 
 
 def test_autowire():
     config_dir = Resource('config_dir', __name__)
     db_config = Resource('db_config', __name__)
 
-    @db_config.autowired(config_dir)
+    @impl.contextual(db_config, config_dir)
     @contextlib.contextmanager
     def db_config_path(config_dir):
         yield os.path.join(config_dir, 'database.yml')
@@ -16,11 +16,11 @@ def test_autowire():
     dev_context = Context()
     prod_context = Context()
 
-    @dev_context.provide_from_func(config_dir)
+    @impl.plain(dev_context(config_dir))
     def get_dev_config_dir():
         return './config/'
 
-    @prod_context.provide_from_func(config_dir)
+    @impl.plain(prod_context(config_dir))
     def get_prod_config_dir():
         return '/etc/autowire/'
 
@@ -37,18 +37,18 @@ def test_autowire_from_func():
     config_dir = Resource('config_dir', __name__)
     db_config = Resource('db_config', __name__)
 
-    @db_config.from_func(config_dir)
+    @impl.plain(db_config, config_dir)
     def db_config_path(config_dir):
         return os.path.join(config_dir, 'database.yml')
 
     dev_context = Context()
     prod_context = Context()
 
-    @dev_context.provide_from_func(config_dir)
+    @impl.plain(dev_context(config_dir))
     def get_dev_config_dir():
         return './config/'
 
-    @prod_context.provide_from_func(config_dir)
+    @impl.plain(prod_context(config_dir))
     def get_prod_config_dir():
         return '/etc/autowire/'
 

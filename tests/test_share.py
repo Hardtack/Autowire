@@ -2,8 +2,7 @@ import contextlib
 
 import pytest
 
-from autowire import Resource, Context
-from autowire.exc import ResourceNotProvidedError
+from autowire import Resource, Context, impl, ResourceNotProvidedError
 from autowire.decorators import globally_shared, shared
 
 
@@ -14,7 +13,7 @@ def test_shared():
 
     count = 0
 
-    @context.provide(counter)
+    @impl.implement(context(counter))
     @shared
     @contextlib.contextmanager
     def increase_and_get_count(context):
@@ -34,7 +33,7 @@ def test_shared_autowire():
     counter = Resource('counter', __name__)
     double = Resource('double', __name__)
 
-    @double.from_func(counter)
+    @impl.plain(double, counter)
     def double_count(counter):
         return counter * 2
 
@@ -42,7 +41,7 @@ def test_shared_autowire():
 
     count = 0
 
-    @context.provide(counter)
+    @impl.implement(context(counter))
     @shared
     @contextlib.contextmanager
     def increase_and_get_count(context):
@@ -65,7 +64,7 @@ def test_globally_shared():
 
     counter = 0
 
-    @number.impl
+    @impl.implement(number)
     @globally_shared
     @contextlib.contextmanager
     def get_next_number(context):
@@ -86,13 +85,13 @@ def test_globally_shared_failure():
 
     context = Context()
 
-    @number.from_func(number, decorators=[globally_shared])
+    @impl.plain(number, decorators=[globally_shared])
     def get_doubled(number):
         return number * 2
 
     child = Context(context)
 
-    @child.provide_from_func(number)
+    @impl.plain(child(number))
     def get_one(context):
         return 1
 
