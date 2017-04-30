@@ -7,7 +7,7 @@ This page shows that how `Autowire` provides resource management and dependency 
 Resource
 --------
 
-Resource is a unimplemented resorce definition.
+Resource is a implementable resorce definition.
 It can have default implementation and also can have different implementation for each contexts.
 
 Resource have two type of names. First is name, and second one is namespace name.
