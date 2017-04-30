@@ -78,3 +78,30 @@ def test_scope():
             child.resolve(level) as child_value:
         assert 1 == parent_value
         assert 2 == child_value
+
+
+def test_hello():
+    hello = Resource('hello', __name__)
+    name = Resource('name', __name__)
+
+    @impl.implement(hello)
+    @contextlib.contextmanager
+    def hello_impl(context):
+        yield 'Hello'
+
+    @impl.implement(name)
+    @contextlib.contextmanager
+    def name_impl(context):
+        yield 'John'
+
+    context = Context()
+
+    @context.partial(hello, name=name)
+    def say(hello, by, name='World'):
+        return '{hello}, {name}! by {by}'.format(
+            hello=hello,
+            name=name,
+            by=by,
+        )
+
+    assert "Hello, John! by Rose" == say('Rose')

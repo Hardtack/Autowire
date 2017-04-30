@@ -6,6 +6,7 @@ Base definitions of autowire.
 
 """
 import abc
+import functools
 
 from autowire._compat import abstractproperty
 
@@ -14,6 +15,7 @@ class BaseResource(object, metaclass=abc.ABCMeta):
     """
     Decalarative contextual resource definition.
     """
+
     def __init__(self, name: str, namespace: str) -> None:
         """
         Create a resource with name.
@@ -76,3 +78,46 @@ class BaseContext(object, metaclass=abc.ABCMeta):
         """Find resource implementation from this context and its parents."""
         context = self.provided_by(resource)
         return context.get_implementation(resource)
+
+    def partial(self, *positionals, **keywords):
+        """
+        New function with partial application of the given resources. ::
+
+            @context.partial(foo_resource, bar=bar_resource)
+            def func(foo, baz, *, bar=None):
+                print(foo)
+                print(bar)
+                print(baz)
+
+            func('Bar')
+            # Output:
+            # Foo
+            # Bar
+            # Baz
+
+        """
+        def decorator(fn):
+            @functools.wraps(fn)
+            def wrapper(*args, **kwargs):
+                # Resolve dependencies recursively
+                def with_dependencies(fn, positionals, keywords):
+                    if positionals:
+                        first = positionals[0]
+                        rest = positionals[1:]
+                        with self.resolve(first) as resolved:
+                            partial = functools.partial(fn, resolved)
+                            return with_dependencies(partial, rest, keywords)
+                    elif keywords:
+                        for name, resource in keywords.items():
+                            break
+                        keywords.pop(name)
+                        with self.resolve(resource) as resolved:
+                            partial = functools.partial(fn, **{name: resolved})
+                            return with_dependencies(
+                                partial, positionals, keywords)
+                    else:
+                        return fn
+                partial = with_dependencies(fn, positionals, keywords)
+                return partial(*args, **kwargs)
+            return wrapper
+        return decorator
