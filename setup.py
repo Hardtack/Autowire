@@ -27,7 +27,7 @@ class PyTest(TestCommand):
 setup(
     name='Autowire',
     packages=setuptools.find_packages(exclude=['tests']),
-    version='0.1.3',
+    version='0.1.4',
     description="Simple dependency injection.",
     author='Geonu Choi',
     author_email='6566gun@gmail.com',
