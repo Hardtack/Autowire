@@ -105,3 +105,4 @@ def test_hello():
         )
 
     assert "Hello, John! by Rose" == say('Rose')
+    assert "Hello, John! by Amy" == say('Amy')

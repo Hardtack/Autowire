@@ -110,11 +110,12 @@ class BaseContext(object, metaclass=abc.ABCMeta):
                     elif keywords:
                         for name, resource in keywords.items():
                             break
-                        keywords.pop(name)
+                        rest = dict(keywords)
+                        rest.pop(name)
                         with self.resolve(resource) as resolved:
                             partial = functools.partial(fn, **{name: resolved})
                             return with_dependencies(
-                                partial, positionals, keywords)
+                                partial, positionals, rest)
                     else:
                         return fn
                 partial = with_dependencies(fn, positionals, keywords)
