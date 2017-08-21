@@ -56,3 +56,22 @@ def test_plain():
 
     with context.resolve(bar) as value:
         assert 'bar-foo' == value
+
+
+def test_partial():
+    context = Context()
+    foo = Resource('foo', __name__)
+    bar = Resource('bar', __name__)
+
+    @impl.plain(foo)
+    def foo_impl():
+        return 'foo'
+
+    @impl.partial(bar, foo=foo)
+    def bar_impl(number, foo):
+        return foo + '-' + str(number)
+
+    with context.resolve(bar) as f:
+        assert f(1) == 'foo-1'
+        assert f(2) == 'foo-2'
+        assert f(3) == 'foo-3'

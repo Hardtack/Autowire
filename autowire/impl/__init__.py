@@ -5,7 +5,10 @@ impl
 Implementers.
 
 """
-from autowire.base import BaseResource
+import contextlib
+import functools
+
+from autowire.base import BaseContext, BaseResource
 from autowire.decorators import autowired
 from autowire.utils import apply_decorators, as_contextmanager
 
@@ -77,6 +80,44 @@ def plain(target: Implementable, *dependencies, decorators=()):
         as_contextmanager,
         autowired(*dependencies),
         *decorators)
+
+
+def partial(target: Implementable, *positionals, decorators=(), **keywords):
+    """
+    Implement the target by applying resolved resources partially
+    to function. ::
+
+        @partial(resource, dependency1, baz=dependency2):
+        def implementation(foo, bar, baz):
+            print(foo)  # dependency1
+            print(bar)  # argument
+            print(baz)  # dependency2
+
+    You can use this resource like ::
+
+        with context.resolve(resource) as function:
+            function("argument")
+
+    """
+    def decorator(fn):
+        @contextlib.contextmanager
+        def implementation(context: BaseContext):
+            keyword_items = list(keywords.items())
+            keyword_keys = [k for k, _ in keyword_items]
+            keyword_resources = [v for _, v in keyword_items]
+
+            with context.resolve_all(positionals) as resolved_args, \
+                    context.resolve_all(keyword_resources) as \
+                    resolved_kwarg_values:
+                resolved_kwargs = {}
+                for k, v in zip(keyword_keys, resolved_kwarg_values):
+                    resolved_kwargs[k] = v
+                partial = functools.partial(fn,
+                                            *resolved_args,
+                                            **resolved_kwargs)
+                yield partial
+        implement(target)(apply_decorators(implementation, decorators))
+    return decorator
 
 
 __all__ = [
