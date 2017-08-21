@@ -8,7 +8,6 @@ Base definitions of autowire.
 import abc
 import contextlib
 import functools
-import typing
 
 from autowire._compat import abstractproperty
 
@@ -76,7 +75,7 @@ class BaseContext(object, metaclass=abc.ABCMeta):
         impl = self.find_resource_impl(resource)
         return impl(self)
 
-    def resolve_all(self, resources: typing.Sequence[BaseResource]):
+    def resolve_all(self, resources):
         """Resolve resources in this context."""
         contexts = [self.resolve(resource) for resource in resources]
 
@@ -127,8 +126,7 @@ class BaseContext(object, metaclass=abc.ABCMeta):
                     for k, v in zip(keyword_keys, resolved_kwarg_values):
                         resolved_kwargs[k] = v
                     partial = functools.partial(
-                        fn, *resolved_args, **resolved_kwargs,
-                    )
+                        fn, *resolved_args, **resolved_kwargs)
                     return partial(*args, **kwargs)
             return wrapper
         return decorator
