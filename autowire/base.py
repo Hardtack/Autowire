@@ -6,7 +6,9 @@ Base definitions of autowire.
 
 """
 import abc
+import contextlib
 import functools
+import typing
 
 from autowire._compat import abstractproperty
 
@@ -73,6 +75,21 @@ class BaseContext(object, metaclass=abc.ABCMeta):
         """Resolve resource in this context."""
         impl = self.find_resource_impl(resource)
         return impl(self)
+
+    def resolve_all(self, resources: typing.Sequence[BaseResource]):
+        """Resolve resources in this context."""
+        contexts = [self.resolve(resource) for resource in resources]
+
+        @contextlib.contextmanager
+        def merged_context(rest: list, resolved: list):
+            if rest:
+                first, *rest = rest
+                with first as value:
+                    with merged_context(rest, resolved):
+                        yield resolved + [value]
+            else:
+                yield resolved
+        return merged_context(contexts, [])
 
     def find_resource_impl(self, resource: BaseResource):
         """Find resource implementation from this context and its parents."""
