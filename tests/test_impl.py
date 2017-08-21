@@ -1,5 +1,7 @@
 import contextlib
 
+import pytest
+
 from autowire import Context, Resource, impl
 
 
@@ -75,3 +77,6 @@ def test_partial():
         assert f(1) == 'foo-1'
         assert f(2) == 'foo-2'
         assert f(3) == 'foo-3'
+
+    with pytest.raises(TypeError):
+        bar(1)
