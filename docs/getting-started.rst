@@ -38,6 +38,7 @@ You can set default implementation to resource by :func:`autowire.impl.implement
     from autowire import impl
 
     @impl.implement(basic)
+    @contextlib.contextmanager
     def implementaion(context):
         print('Enter')
         try:
@@ -47,6 +48,24 @@ You can set default implementation to resource by :func:`autowire.impl.implement
 
 The implementation should be a function that takes :class:`~autowire.base.BaseContext` as parameter 
 and returns ``ContextManager``. (``(BaseContext) -> ContextManager``)
+
+You can also create resource with implementation at once.
+
+.. code-block:: python
+
+    import contextlib
+    from autowire import resource
+
+    @resource.implement()
+    @contextlib.contextmanager
+    def basic(context):
+        print('Enter')
+        try:
+            yield('Value')
+        finally:
+            print('Leave')
+
+    The function ``basic`` will be a resource and also be a function.
 
 
 Context

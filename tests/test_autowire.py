@@ -33,7 +33,7 @@ def test_autowire():
             prod_db_config
 
 
-def test_autowire_from_func():
+def test_autowire_plain():
     config_dir = Resource('config_dir', __name__)
     db_config = Resource('db_config', __name__)
 
