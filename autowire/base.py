@@ -116,26 +116,19 @@ class BaseContext(object, metaclass=abc.ABCMeta):
         def decorator(fn):
             @functools.wraps(fn)
             def wrapper(*args, **kwargs):
-                # Resolve dependencies recursively
-                def with_dependencies(fn, positionals, keywords):
-                    if positionals:
-                        first = positionals[0]
-                        rest = positionals[1:]
-                        with self.resolve(first) as resolved:
-                            partial = functools.partial(fn, resolved)
-                            return with_dependencies(partial, rest, keywords)
-                    elif keywords:
-                        for name, resource in keywords.items():
-                            break
-                        rest = dict(keywords)
-                        rest.pop(name)
-                        with self.resolve(resource) as resolved:
-                            partial = functools.partial(fn, **{name: resolved})
-                            return with_dependencies(
-                                partial, positionals, rest)
-                    else:
-                        return fn
-                partial = with_dependencies(fn, positionals, keywords)
-                return partial(*args, **kwargs)
+                keyword_items = list(keywords.items())
+                keyword_keys = [k for k, _ in keyword_items]
+                keyword_resources = [v for _, v in keyword_items]
+
+                with self.resolve_all(positionals) as resolved_args, \
+                        self.resolve_all(
+                            keyword_resources) as resolved_kwarg_values:
+                    resolved_kwargs = {}
+                    for k, v in zip(keyword_keys, resolved_kwarg_values):
+                        resolved_kwargs[k] = v
+                    partial = functools.partial(
+                        fn, *resolved_args, **resolved_kwargs,
+                    )
+                    return partial(*args, **kwargs)
             return wrapper
         return decorator
