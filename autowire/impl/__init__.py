@@ -17,17 +17,17 @@ def contextual(target: Implementable, *dependencies: BaseResource,
     """
     Implement with contextual & autowired resources. ::
 
-        @implementble.autowired(dependency1, dependency2)
+        @impl.contextual(resource, dependency1, dependency2)
         @contextlib.contextmanager
         def create_resource(dependency1, dependency2):
             yield dependency1.make_resource(dependency2)
 
     To apply decorators to implementation ::
 
-        @resource.autowired(dependency, decorators=[decorator])
+        @impl.contextual(resource, dependency, decorators=[decorator])
         @contextlib.contextmanager
         def create_resource(dependency):
-            return dependency.make_resource()
+            yield dependency.make_resource()
 
     """
     return with_decorators(target, autowired(*dependencies), *decorators)
@@ -37,7 +37,7 @@ def plain(target: Implementable, *dependencies, decorators=()):
     """
     Implement with plain function. ::
 
-        @implementable.plain(dependency)
+        @impl.plain(resource, dependency)
         def get_resource(dependency):
             return os.path.join(dependency, 'resource.json')
 
