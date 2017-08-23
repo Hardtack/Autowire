@@ -80,15 +80,15 @@ class BaseContext(object, metaclass=abc.ABCMeta):
         contexts = [self.resolve(resource) for resource in resources]
 
         @contextlib.contextmanager
-        def merged_context(rest: list, resolved: list):
+        def merged_context(rest: list):
             if rest:
                 first, *rest = rest
                 with first as value:
-                    with merged_context(rest, resolved):
-                        yield resolved + [value]
+                    with merged_context(rest) as rest_values:
+                        yield [value] + rest_values
             else:
-                yield resolved
-        return merged_context(contexts, [])
+                yield []
+        return merged_context(contexts)
 
     def find_resource_impl(self, resource: BaseResource):
         """Find resource implementation from this context and its parents."""
