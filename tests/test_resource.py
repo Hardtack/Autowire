@@ -73,3 +73,28 @@ def test_partial():
 
     with pytest.raises(TypeError):
         bar(1)
+
+
+def test_partial_multiple():
+    context = Context()
+
+    @resource.plain()
+    def foo():
+        return 'foo'
+
+    @resource.plain()
+    def bar():
+        return 'bar'
+
+    @resource.partial(foo=foo, bar=bar)
+    def foobar(sep, foo, bar):
+        return '{foo}{sep}{bar}'.format(
+            foo=foo,
+            bar=bar,
+            sep=sep
+        )
+
+    with context.resolve(foobar) as f:
+        assert f('/') == 'foo/bar'
+        assert f('-') == 'foo-bar'
+        assert f('~') == 'foo~bar'
