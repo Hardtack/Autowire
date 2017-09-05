@@ -104,17 +104,15 @@ def shared(impl):
     @functools.wraps(impl)
     @contextlib.contextmanager
     def wrapper(context: BaseContext):
-        with context.resolve(this) as resource:
-            providing_context = context.provided_by(resource)
-        if providing_context not in counters:
-            counters[providing_context] = RefCounter(impl(providing_context))
-        counter = counters[providing_context]
+        if context not in counters:
+            counters[context] = RefCounter(impl(context))
+        counter = counters[context]
         try:
             with counter as value:
                 yield value
         finally:
             if counter.count == 0:
-                del counters[providing_context]
+                del counters[context]
     return wrapper
 
 
