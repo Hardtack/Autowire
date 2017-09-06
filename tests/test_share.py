@@ -3,7 +3,7 @@ import contextlib
 import pytest
 
 from autowire import Resource, Context, impl, ResourceNotProvidedError
-from autowire.decorators import globally_shared, shared
+from autowire.decorators import shared
 
 
 def test_shared():
@@ -69,7 +69,7 @@ def test_globally_shared():
     counter = 0
 
     @impl.implement(number)
-    @globally_shared
+    @shared(globally=True)
     @impl.implementation
     @contextlib.contextmanager
     def get_next_number(resource, context):
@@ -91,7 +91,7 @@ def test_globally_shared_failure():
     context = Context()
 
     @impl.implement(number)
-    @globally_shared
+    @shared(globally=True)
     @impl.plain
     def get_doubled(number):
         return number * 2

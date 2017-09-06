@@ -6,13 +6,14 @@ Decorators for autowire.
 
 """
 from .helpers import GloballySharedImplementation, SharedImplementation
+from .impl.implementation import FunctionImplementation
 
 
-def shared(impl):
+def shared(impl: FunctionImplementation=None, *, globally=False):
     """
     Convert implementation to shared resource implementation.
 
-    Shared resource shares contexxt using reference counting.
+    Shared resource shares context using reference counting.
     When you try to resolve shared resource that already resolve but not teared
     down, It brings previously resolved resouce. ::
 
@@ -24,19 +25,21 @@ def shared(impl):
         dog = Resource('dog', __name__)
         walk = Resource('walk', __name__)
 
-        @dog.impl
+        @impl.implement(dog)
         @shared
+        @impl.implementation
         @contextmanager
-        def with_dog(context):
+        def with_dog(resource, context):
             print("Dog is entering")
             try:
                 yield "🐶"
             finally:
                 print("Dog leaved")
 
-        @walk.impl
+        @impl.implement(walk)
+        @impl.implementation
         @contextmanager
-        def with_walking(context):
+        def with_walking(resource, context):
             with context.resolve(dog) as dog_value:
                 yield "Walking with {}".format(dog_value)
 
@@ -53,32 +56,22 @@ def shared(impl):
         # Feeding 🐶
         # Dog leaved
 
-    """
-    return SharedImplementation(impl)
+    When set globally to `True` the resource will be shared globally.
+    "Globally shared" means resource is shared in providing context.
 
-
-def globally_shared(impl):
-    """
-    Convert implementation to globally shared resource implementation.
-    Which "globally shared" means resource is shared in providing context.
-
-    Shared resource shares contexxt using reference counting.
-    When you try to resolve shared resource that already resolve but not teared
-    down, It brings previously resolved resouce.
-
-    The resource will be tied into resource's providing context.
+    Globally shared resource will be tied into resource's providing context.
     It means that children's context will not be able to be used
     in this resource. ::
 
         res1 = Resource('res1', __name__)
         res2 = Resource('res2', __name__)
 
-        @res2.impl
-        @globally_shared
+        @impl.implement(res2)
+        @shared(globally=True)
         @contextlib.contextmanager
-        def with_res1(context):
+        def with_res1(resource, context):
             with context.resolve(res2) as res1_factory:
-                res1 = res1_factory.create_res1()
+                res1 = res1_factory()
                 try:
                     yield res1
                 finally:
@@ -92,10 +85,19 @@ def globally_shared(impl):
         def with_res2():
             yield ...
 
-        # Get ResourceNotProvidedError, even though child provides res2.
-        # Because res1 was shared in parent context.
+        # Get ResourceNotProvidedError, even though child context provides
+        # res2. Because res1 was shared globally in parent context.
         with child.resolve(res1):
             ...
 
+
     """
-    return GloballySharedImplementation(impl)
+    if impl is not None:
+        return shared(globally=globally)(impl)
+
+    def decorator(impl: FunctionImplementation):
+        if globally:
+            return GloballySharedImplementation(impl)
+        else:
+            return SharedImplementation(impl)
+    return decorator
