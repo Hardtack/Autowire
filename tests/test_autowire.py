@@ -1,6 +1,6 @@
 import os
 
-from autowire import Resource, Context, impl
+from autowire import Resource, Context, impl, resource
 
 
 def test_autowire():
@@ -65,3 +65,26 @@ def test_autowire_plain():
     with prod_context.resolve(db_config) as prod_db_config:
         assert os.path.join(get_prod_config_dir(), 'database.yml') == \
             prod_db_config
+
+
+def test_autowire_multiple():
+    @resource.create
+    @impl.plain
+    def foo():
+        return 'foo'
+
+    @resource.create
+    @impl.plain
+    def bar():
+        return 'bar'
+
+    @resource.create
+    @impl.autowired('foo', foo)
+    @impl.autowired('bar', bar)
+    @impl.plain
+    def baz(foo, bar):
+        return '{}-{}-baz'.format(foo, bar)
+
+    context = Context()
+    with context.resolve(baz) as value:
+        assert 'foo-bar-baz' == value
