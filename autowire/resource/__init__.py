@@ -17,8 +17,9 @@ def create(implementation: Implementation=None, *, name=None, namespace=None):
     Create a resource with implementation. ::
 
         @resource.create
+        @impl.implementation
         @contextlib.contextmanager
-        def some_resource(context: Context):
+        def some_resource(resource, context: Context):
             with open('output.log', 'w') as output:
                 yield output
 
@@ -32,7 +33,7 @@ def create(implementation: Implementation=None, *, name=None, namespace=None):
         resource = FunctionResource(
             implementation, name=name, namespace=namespace
         )
-        impl.implement(resource)(implementation)
+        resource.implement(implementation)
         return resource
     if impl is not None:
         return decorator(implementation)

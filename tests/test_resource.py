@@ -10,7 +10,7 @@ def test_create():
         return 'foo'
 
     @resource.create
-    @impl.autowired('foo', foo)
+    @impl.autowired(foo)
     @impl.plain
     def bar(foo):
         return 'bar-' + foo

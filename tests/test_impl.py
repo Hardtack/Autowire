@@ -8,7 +8,8 @@ def test_implement():
     context = Context()
     resource = Resource('test', __name__)
 
-    @impl.implement(resource)
+    @resource.implement
+    @impl.implementation
     @contextlib.contextmanager
     def resource_impl(resource, context):
         yield 'Test'
@@ -22,16 +23,15 @@ def test_contextual():
     foo = Resource('foo', __name__)
     bar = Resource('bar', __name__)
 
-    @impl.implement(foo)
+    @foo.implement
     @impl.contextual
     @contextlib.contextmanager
     def foo_impl():
         yield 'foo'
 
-    @impl.implement(bar)
+    @bar.implement
     @impl.autowired('foo', foo)
-    @impl.contextual
-    @contextlib.contextmanager
+    @impl.contextmanager
     def bar_impl(foo):
         yield 'bar-' + foo
 
@@ -47,12 +47,12 @@ def test_plain():
     foo = Resource('foo', __name__)
     bar = Resource('bar', __name__)
 
-    @impl.implement(foo)
+    @foo.implement
     @impl.plain
     def foo_impl():
         return 'foo'
 
-    @impl.implement(bar)
+    @bar.implement
     @impl.autowired('foo', foo)
     @impl.plain
     def bar_impl(foo):

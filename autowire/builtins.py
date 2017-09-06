@@ -19,7 +19,7 @@ class ContextResource(BaseResource):
     @property
     def default_implementation(self):
         @contextlib.contextmanager
-        def impl(context: BaseContext):
+        def impl(resource: BaseResource, context: BaseContext):
             yield context
 
         return impl

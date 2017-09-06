@@ -38,8 +38,13 @@ class FunctionResource(BaseResource, Implementable):
         self._default_implementation = default_implementation
 
     def implement(self, implementation: Implementation):
-        """Set implementation of implementable."""
+        """Set implementation of implementable. ::
+
+            @resource.implement
+        
+        """
         self.default_implementation = implementation
+        return implementation
 
     def __call__(self, *args, **kwargs):
         return self.func(*args, **kwargs)

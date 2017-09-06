@@ -15,29 +15,6 @@ from .function import FunctionImplementation
 from .implementable import Implementable
 
 
-def implement(implementable: Implementable):
-    """
-    Implement a resource with decorated function. ::
-
-        @impl.implement(resource)
-        def resource_impl(resource, context):
-            ...
-
-    You can implement a resource in specific context by ::
-
-        @impl.implement(context(resource))
-        def resource_impl(resource, context):
-            ...
-
-    """
-    def decorator(fn):
-        if not isinstance(fn, Implementation):
-            fn = implementation(fn)
-        implementable.implement(fn)
-        return fn
-    return decorator
-
-
 def implementation(fn):
     """
     Create an implmentation with function that compatible with reify method.
@@ -51,6 +28,26 @@ def implementation(fn):
             yield value
 
     return FunctionImplementation(fn, evaluator)
+
+
+def contextmanager(fn):
+    """
+    Shorcut for combination of ``@contextual`` and
+    ``@contextlib.contextmanager`` ::
+
+        @impl.contextual
+        @contextlib.contextmanager
+        def some_impl():
+            ...
+
+    is equivalent to ::
+
+        @impl.contextmanager
+        def some_impl(resource, context):
+            ...
+
+    """
+    return contextual(contextlib.contextmanager(fn))
 
 
 def contextual(fn):

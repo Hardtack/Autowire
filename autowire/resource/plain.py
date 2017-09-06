@@ -16,7 +16,6 @@ class Resource(BaseResource, Implementable):
     Resource class of some functionalities like default implementation.
 
     """
-
     def __init__(self, name, namespace):
         super().__init__(name, namespace)
         self.default_implementation = default_implementation

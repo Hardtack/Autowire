@@ -38,3 +38,8 @@ class Provider(Implementable):
     def implement(self, implementation: Implementation):
         """Set implementation of implementable."""
         self.consumer.set_implementation(self.resource, implementation)
+
+    def __call__(self, implementation: Implementation):
+        """Set implementation and return. You can use it as a decorator"""
+        self.implement(implementation)
+        return implementation

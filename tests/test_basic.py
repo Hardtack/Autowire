@@ -8,7 +8,8 @@ from autowire import Resource, Context, ResourceNotProvidedError, impl
 def test_resource():
     resource = Resource('resource', __name__)
 
-    @impl.implement(resource)
+    @resource.implement
+    @impl.implementation
     @contextlib.contextmanager
     def resource_impl(resource, context):
         yield 'Hello'
@@ -22,7 +23,7 @@ def test_resource():
 def test_plain():
     hello = Resource('hello', __name__)
 
-    @impl.implement(hello)
+    @hello.implement
     @impl.plain
     def get_resource():
         return 'Hello'
@@ -49,7 +50,7 @@ def test_provide():
     parent = Context()
     child = Context(parent)
 
-    @impl.implement(child(env))
+    @child.provide(env)
     @impl.plain
     def get_env():
         return 'development'
@@ -68,12 +69,12 @@ def test_scope():
     parent = Context()
     child = Context(parent)
 
-    @impl.implement(parent(level))
+    @parent.provide(level)
     @impl.plain
     def parent_level():
         return 1
 
-    @impl.implement(child(level))
+    @child.provide(level)
     @impl.plain
     def child_level():
         return 2
@@ -88,12 +89,14 @@ def test_hello():
     hello = Resource('hello', __name__)
     name = Resource('name', __name__)
 
-    @impl.implement(hello)
+    @hello.implement
+    @impl.implementation
     @contextlib.contextmanager
     def hello_impl(resource, context):
         yield 'Hello'
 
-    @impl.implement(name)
+    @name.implement
+    @impl.implementation
     @contextlib.contextmanager
     def name_impl(resource, context):
         yield 'John'

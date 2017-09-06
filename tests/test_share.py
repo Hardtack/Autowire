@@ -13,7 +13,7 @@ def test_shared():
 
     count = 0
 
-    @impl.implement(context(counter))
+    @context.provide(counter)
     @shared
     @impl.implementation
     @contextlib.contextmanager
@@ -34,7 +34,7 @@ def test_shared_autowire():
     counter = Resource('counter', __name__)
     double = Resource('double', __name__)
 
-    @impl.implement(double)
+    @double.implement
     @impl.autowired('counter', counter)
     @impl.plain
     def double_count(counter):
@@ -44,7 +44,7 @@ def test_shared_autowire():
 
     count = 0
 
-    @impl.implement(context(counter))
+    @context.provide(counter)
     @shared
     @impl.implementation
     @contextlib.contextmanager
@@ -68,7 +68,7 @@ def test_globally_shared():
 
     counter = 0
 
-    @impl.implement(number)
+    @number.implement
     @shared(globally=True)
     @impl.implementation
     @contextlib.contextmanager
@@ -90,7 +90,7 @@ def test_globally_shared_failure():
 
     context = Context()
 
-    @impl.implement(number)
+    @number.implement
     @shared(globally=True)
     @impl.plain
     def get_doubled(number):
@@ -98,7 +98,7 @@ def test_globally_shared_failure():
 
     child = Context(context)
 
-    @impl.implement(child(number))
+    @child.provide(number)
     @impl.plain
     def get_one(resource, context):
         return 1

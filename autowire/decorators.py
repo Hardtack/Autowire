@@ -25,7 +25,7 @@ def shared(impl: FunctionImplementation=None, *, globally=False):
         dog = Resource('dog', __name__)
         walk = Resource('walk', __name__)
 
-        @impl.implement(dog)
+        @dog.implement
         @shared
         @impl.implementation
         @contextmanager
@@ -36,7 +36,7 @@ def shared(impl: FunctionImplementation=None, *, globally=False):
             finally:
                 print("Dog leaved")
 
-        @impl.implement(walk)
+        @walk.implement
         @impl.implementation
         @contextmanager
         def with_walking(resource, context):
@@ -66,8 +66,9 @@ def shared(impl: FunctionImplementation=None, *, globally=False):
         res1 = Resource('res1', __name__)
         res2 = Resource('res2', __name__)
 
-        @impl.implement(res2)
+        @res2.implement
         @shared(globally=True)
+        @impl.implementation
         @contextlib.contextmanager
         def with_res1(resource, context):
             with context.resolve(res2) as res1_factory:
