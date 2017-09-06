@@ -117,7 +117,7 @@ def autowired(argname_or_required, required=None):
         def evaluator(fn, resource: BaseResource, context: BaseContext):
             with context.resolve(required) as arg:
                 kwargs = {argname: arg}
-                new_function = functools.partial(func_impl.function, **kwargs)
+                new_function = functools.partial(fn, **kwargs)
                 with func_impl.evaluator(
                         new_function, resource, context) as value:
                     yield value
