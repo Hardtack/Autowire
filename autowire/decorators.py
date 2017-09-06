@@ -5,6 +5,8 @@ autowire.decorators
 Decorators for autowire.
 
 """
+import contextlib
+
 from .helpers import GloballySharedImplementation, SharedImplementation
 from .impl.function import FunctionImplementation
 
@@ -98,7 +100,15 @@ def shared(impl: FunctionImplementation=None, *, globally=False):
 
     def decorator(impl: FunctionImplementation):
         if globally:
-            return GloballySharedImplementation(impl)
+            shared_impl = GloballySharedImplementation(impl)
         else:
-            return SharedImplementation(impl)
+            shared_impl = SharedImplementation(impl)
+
+        # Create a function implementation to preserve interface
+        @contextlib.contextmanager
+        def evaluator(fn, resource, context):
+            with shared_impl.reify(resource, context) as value:
+                yield value
+
+        return FunctionImplementation(impl.function, evaluator)
     return decorator

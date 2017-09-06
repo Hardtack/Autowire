@@ -2,7 +2,8 @@ import contextlib
 
 import pytest
 
-from autowire import Resource, Context, impl, ResourceNotProvidedError
+from autowire import Resource, Context, impl, ResourceNotProvidedError, \
+    resource
 from autowire.decorators import shared
 
 
@@ -86,14 +87,14 @@ def test_globally_shared():
 
 def test_globally_shared_failure():
     number = Resource('number', __name__)
-    double = Resource('double', __name__)
 
     context = Context()
 
-    @number.implement
+    @resource.create
     @shared(globally=True)
+    @impl.autowired(number)
     @impl.plain
-    def get_doubled(number):
+    def double(number):
         return number * 2
 
     child = Context(context)
