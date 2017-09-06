@@ -12,27 +12,28 @@ Sharing Resource
 
 .. code-block:: python
 
-    from contextlib import contextmanager
-
+    import contextlib
     from autowire import Context, Resource
     from autowire.decorators import shared
 
     dog = Resource('dog', __name__)
     walk = Resource('walk', __name__)
 
-    @dog.impl
+    @dog.implement
     @shared
-    @contextmanager
-    def with_dog(context):
+    @impl.implementation
+    @contextlib.contextmanager
+    def with_dog(resource, context):
         print("Dog is entering")
         try:
             yield "🐶"
         finally:
             print("Dog leaved")
 
-    @walk.impl
-    @contextmanager
-    def with_walking(context):
+    @walk.implement
+    @impl.implementation
+    @contextlib.contextmanager
+    def with_walking(resource, context):
         with context.resolve(dog) as dog_value:
             yield "Walking with {}".format(dog_value)
 
@@ -56,13 +57,13 @@ Globally Shared Resource
 ------------------------
 
 When you have nested contexts, the shared resource will be created for each contexts.
-If you want to have only one resource per whole contexts, you can do that with
-``globally_shared`` decorator.
+If you want to have only one resource per whole contexts, you can do that by set
+``globally`` to :const:`True`.
 
 
 .. code-block:: python
 
-    from contextlib import contextmanager
+    import contextlib
 
     from autowire import Context, Resource, impl
     from autowire.decorators import shared
@@ -70,19 +71,21 @@ If you want to have only one resource per whole contexts, you can do that with
     dog = Resource('dog', __name__)
     walk = Resource('walk', __name__)
 
-    @impl.implement(dog)
-    @globally_shared
-    @contextmanager
-    def with_dog(context):
+    @dog.implement
+    @shared(globally=True)
+    @impl.implementation
+    @contextlib.contextmanager
+    def with_dog(resource, context):
         print("Dog is entering")
         try:
             yield "🐶"
         finally:
             print("Dog leaved")
 
-    @impl.implement(walk)
-    @contextmanager
-    def with_walking(context):
+    @walk.implement
+    @impl.implementation
+    @contextlib.contextmanager
+    def with_walking(resource, context):
         with context.resolve(dog) as dog_value:
             yield "Walking with {}".format(dog_value)
 
@@ -105,7 +108,7 @@ children context's resources.
 
 .. code-block:: python
 
-    from contextlib import contextmanager
+    import contextlib
 
     from autowire import Context, Resource
     from autowire.decorators import shared
@@ -113,10 +116,10 @@ children context's resources.
     dog = Resource('dog', __name__)
     walk = Resource('walk', __name__)
 
-    @impl.implement(walk)
-    @globally_shared
-    @contextmanager
-    def with_walking(context):
+    @walk.implement
+    @shared(globally=True)
+    @contextlib.contextmanager
+    def with_walking(resource, context):
         with context.resolve(dog) as dog_value:
             yield "Walking with {}".format(dog_value)
 
@@ -124,8 +127,8 @@ children context's resources.
     child = Context(context)
 
     # Provide dog
-    @impl.implement(child(dog))
-    @contextmanager
+    @child.provide(dog)
+    @contextlib.contextmanager
     def with_dog(context):
         yield "🐶"
 

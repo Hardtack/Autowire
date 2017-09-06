@@ -18,7 +18,7 @@ Autowire
     :target: https://github.com/Hardtack/Autowire
     
 
-Autowire is light & simple dependency injection library for Python.
+Autowire is light & simple dependency injection and resource management library for Python.
 
 You can use dependency injection & resource management without any classes and any magics.
 
@@ -43,8 +43,9 @@ This is how to define resources in `Autowire`.
     # Implement db_connection resource
     # db_connection is resource to be implemented,
     # db_connection_factory is resource to be injected.
-    @impl.contextual(db_connection, db_connection_factory)
-    @contextlib.contextmanager
+    @db_connection.implement
+    @impl.autowired(db_connection_factory)
+    @impl.contextmanager
     def with_db_connection(db_connection_factory):
         conn = db_connection_factory()
         try:

@@ -29,7 +29,7 @@ The resource will make canonical name with two names ::
     >>> basic.canonical_name
     'some.module.name.basic'
 
-You can set default implementation to resource by :func:`autowire.impl.implement` decorator
+You can set default implementation to resource by :func:`autowire.impl.implement`
 
 
 .. code-block:: python
@@ -37,17 +37,20 @@ You can set default implementation to resource by :func:`autowire.impl.implement
     import contextlib
     from autowire import impl
 
-    @impl.implement(basic)
+    @impl.implementation
     @contextlib.contextmanager
-    def implementaion(context):
+    def implementaion(resource, context):
         print('Enter')
         try:
             yield 'Value'
         finally:
             print('Leave')
+    
+    basic.implement(implementation)
 
-The implementation should be a function that takes :class:`~autowire.base.BaseContext` as parameter 
-and returns ``ContextManager``. (``(BaseContext) -> ContextManager``)
+The implementation should be an instance of :class:`~autowire.base.Implementation`
+:func:`~autowire.impl.implementation` decorator converts contextmanager function
+to instance of :class:`~autowire.base.Implementation`.
 
 You can also create resource with implementation at once.
 
@@ -56,7 +59,8 @@ You can also create resource with implementation at once.
     import contextlib
     from autowire import resource
 
-    @resource.implement()
+    @resource.create
+    @impl.implementation
     @contextlib.contextmanager
     def basic(context):
         print('Enter')
@@ -65,7 +69,7 @@ You can also create resource with implementation at once.
         finally:
             print('Leave')
 
-    The function ``basic`` will be a resource and also be a function.
+The function ``basic`` will be a resource and also be a function.
 
 
 Context
@@ -95,21 +99,32 @@ The root parent of all contexts is :const:`~autowire.context.root.root_context`.
 Providing Implementation to context
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Providing implementaion for resource in context is almost same with providing to resource.
-
-Simply wrap resource like ``context(resource)`` and pass it to implementer.
+You can provide an implementation for the resource by using
+:meth:`~autowire.base.BaseContext.provide` method.
 
 .. code-block:: python
 
-    @impl.implement(child_context(basic))
+    @impl.implementation
     @contextlib.contextmanager
-    def context_implementation(context):
+    def context_implementation(resource, context):
+        yield 'Custom Value'
+
+    child_context.provide(basic, context_implementation)
+
+:meth:`~autowire.base.BaseContext.provide` also can be used as a decorator
+
+.. code-block:: python
+
+    @child_context.provide(basic)
+    @impl.implementation
+    @contextlib.contextmanager
+    def context_implementation(resource, context):
         yield 'Custom Value'
 
 Resolving Resource
 ~~~~~~~~~~~~~~~~~~
 
-So, resources can have different implementations for each contexts.
+Resources can have different implementations for each contexts.
 This is how to resolve implementation of them.
 
 .. code-block:: python
@@ -137,18 +152,76 @@ When there's no implementaion to be provided, it will raise :class:`~autowire.ex
         pass
 
 
-Dependency Inejection
----------------------
+Functional Interface
+--------------------
 
-Basically, you can resolve some other resources in impementation from context in arguments.
+You don't always need neither resource or context for your implementation.
+And also you don't need any resource management for providing implementation.
+
+There are some useful utilities for these use cases.
+
+First one is :func:`~autowire.impl.contextual`. It converts simple context manager
+function to implementation.
 
 .. code-block:: python
 
-    other_resource = Resource('other_resource', __name__)
+    import contextlib
+    from autowire import impl
 
-    @impl.implement(other_resource)
+    @res.implement
+    @impl.contexual
     @contextlib.contextmanager
-    def implement_other(context):
+    def res_impl():
+        value = build_resource()
+        try:
+            yield value
+        finally:
+            destroy_resource(value)
+
+Second one is :func:`~autowire.impl.contextmanager`, which is a shortcut for above.
+
+.. code-block:: python
+
+    from autowire import impl
+
+    @res.implement
+    @impl.contextmanager
+    def res_impl():
+        value = build_resource()
+        try:
+            yield value
+        finally:
+            destroy_resource(value)
+
+Last one is :func:`~autowire.impl.plain`. It converts plain function to implementation.
+
+.. code-block:: python
+
+    from autowire import impl
+
+    @res.implement
+    @impl.plain
+    def get_impl():
+        return "Implementation!"
+
+All functional interface decorators preserve decorated function's interface.
+
+.. code-block:: python
+    
+    >>> get_impl()
+    "Implementation!"
+
+
+Dependency Inejection
+---------------------
+
+Basically, you can resolve some other resources from the context in impementations.
+
+.. code-block:: python
+
+    @impl.implementation
+    @contextlib.contextmanager
+    def some_implementation(resource, context):
         with context.resolve(basic) as value:
             yield 'Hello, {}'.format(value)
 
@@ -156,59 +229,17 @@ By the above code, we injected ``basic`` resource to implementation of ``other_r
 
 This is clear, but little boilerplateful.
 
-So we provide some convinience utils.
-
-First one is :func:`autowire.impl.contextual`
-
-This decorator convert any functions that returns ``ContextManager`` to implementation type.
+So we provide :func:`~autowire.impl.autowired` decorator to do this simply.
 
 .. code-block:: python
 
-    @impl.contextual(other_resource, basic)
-    @contextlib.contextmanager
+    @other_resource.implement
+    @impl.autowired('basic', basic)
+    @impl.plain
     def with_other_resource(basic)
-        yield 'Hello, {}'.format(basic)
+        reutnr 'Hello, {}'.format(basic)
 
-But it doesn't change interface of ``with_other_resource`` so you can still use it like
+First argument is a name that be used for keyword argument. Second one is resource to be resolved.
+When the name is not provided, The ``name`` property of resource will be used by default.
 
-.. code-block:: python
-
-    with with_other_resource('Basic Mockup') as message:
-        print(message)
-
-
-When you don't even want a context management, you can use :func:`autowire.impl.plain`
-which means plain function.
-
-.. code-block:: python
-
-    @impl.plain(other_resource, basic)
-    def get_other_resource(basic):
-        return 'Hello, {}'.format(basic)
-
-You can surely use this as plain function
-
-.. code-block:: python
-
-    print(get_other_resource('Basic Mockup'))
-
-Since :func:`~autowire.impl.contextual` and :func:`~autowire.impl.plain`
-don't change original function's interface, you have care about decorators for implementation.
-
-When you want to apply decoration to a original function, just use that normally
-
-.. code-block:: python
-
-    @impl.plain(other_resource, basic)
-    @decorator
-    def get_other_resource(basic):
-        return 'Hello, {}'.format(basic)
-
-But, when you want to apply them to actual implementation, add them to keyword-only argument
-``decorators``.
-
-.. code-block:: python
-
-    @impl.plain(other_resource, basic, decorators=[decorator])
-    def get_other_resource(basic):
-        return 'Hello, {}'.format(basic)
+:func:`~autowire.impl.autowired` decorator can be only used for functional interface implementations.
