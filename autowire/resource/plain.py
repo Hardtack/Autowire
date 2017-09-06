@@ -31,3 +31,4 @@ class Resource(BaseResource, Implementable):
     def implement(self, implementation: Implementation):
         """Set implementation of implementable."""
         self.default_implementation = implementation
+        return implementation

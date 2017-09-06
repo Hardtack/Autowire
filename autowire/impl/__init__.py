@@ -79,6 +79,27 @@ def plain(fn):
     return FunctionImplementation(fn, evaluator)
 
 
+def partial(fn):
+    """
+    Create an implementation that make partial function from decorated
+    function ::
+
+        @resource.create
+        @impl.autowired('user_repository', user_repository)
+        @impl.partial
+        def print_username(user_id, *, user_repository):
+            print(user_repository.find_by_id(user_id).username)
+
+    The implementation can be called same as original function.
+
+    """
+    @as_contextmanager
+    def evaluator(fn, resource: BaseResource, context: BaseContext):
+        return fn
+
+    return FunctionImplementation(fn, evaluator)
+
+
 def autowired(argname_or_required, required=None):
     """
     Resolve a required resource and inject into function implementation
