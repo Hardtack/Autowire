@@ -7,7 +7,6 @@ Helpers.
 """
 import contextlib
 
-from ._compat import ContextManger
 from .base import BaseContext, BaseResource, Implementation
 from .utils import RefCounter
 
@@ -19,8 +18,7 @@ class SharedImplementation(Implementation):
         self.counters = {}
 
     @contextlib.contextmanager
-    def reify(self, resource: BaseResource, context: BaseContext) \
-            -> ContextManger:
+    def reify(self, resource: BaseResource, context: BaseContext):
         if context not in self.counters:
             context_manager = self.impl.reify(resource, context)
             self.counters[context] = RefCounter(context_manager)
@@ -40,8 +38,7 @@ class GloballySharedImplementation(Implementation):
         self.counter = None
 
     @contextlib.contextmanager
-    def reify(self, resource: BaseResource, context: BaseContext) \
-            -> ContextManger:
+    def reify(self, resource: BaseResource, context: BaseContext):
         if self.counter is None:
             provider = context.provided_by(resource)  # Find me
             self.counter = RefCounter(self.impl.reify(resource, provider))

@@ -6,7 +6,6 @@ Abstract base class for implementable things.
 
 """
 import abc
-import typing
 
 from .implementation import Implementation
 

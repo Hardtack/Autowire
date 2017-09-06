@@ -6,7 +6,7 @@ Resource implementations.
 
 """
 from autowire import impl
-from autowire.base import BaseResource, Implementation
+from autowire.base import Implementation
 
 from .plain import Resource
 from .function import FunctionResource

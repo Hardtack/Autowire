@@ -9,7 +9,7 @@ import abc
 import contextlib
 import functools
 
-from autowire._compat import abstractproperty, ContextManger
+from autowire._compat import abstractproperty
 
 
 class BaseResource(object, metaclass=abc.ABCMeta):
@@ -159,6 +159,5 @@ class BaseContext(object, metaclass=abc.ABCMeta):
 class Implementation(object, metaclass=abc.ABCMeta):
     """Base implementation type"""
     @abc.abstractmethod
-    def reify(self, resource: BaseResource, context: BaseContext) \
-            -> ContextManger:
+    def reify(self, resource: BaseResource, context: BaseContext):
         pass

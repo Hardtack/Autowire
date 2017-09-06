@@ -9,16 +9,12 @@ import abc
 import contextlib
 import functools
 import types
-import typing
 
-from autowire._compat import ContextManger
 from autowire.base import BaseResource, BaseContext, Implementation
 
 
-Evaluator = typing.Callable[
-    [types.FunctionType, BaseResource, BaseContext], 
-    ContextManger
-]
+# (FunctionType, BaseResource, BaseContext) -> ContextManager
+Evaluator = types.FunctionType
 
 
 class FunctionImplementation(Implementation, metaclass=abc.ABCMeta):

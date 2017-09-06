@@ -7,7 +7,6 @@ Compatability support
 """
 import abc
 import sys
-import typing
 
 MAJOR, MINOR = sys.version_info[:2]
 PY33 = MAJOR == 3 and MINOR >= 3
@@ -20,6 +19,3 @@ if PY33:
         return property(abc.abstractmethod(getter))
 else:
     abstractproperty = abc.abstractproperty
-
-
-ContextManger = getattr(typing, 'ContextManager', typing.Any)

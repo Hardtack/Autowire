@@ -40,14 +40,18 @@ class Context(BaseContext, ImplementationConsumer):
         Resource resource's implementation provider which is
         :class:`Implementable` ::
 
-            @autowired(context.provide(resource), dependency1, dependency2)
+            @impl.implement(context.provide(resource))
+            @impl.autowired('dependency1', dependency1)
+            @impl.autowired('dependency2', dependency2)
             @contextlib.contextmanager
             def create_resource(dependency1, dependency2):
                 yield dependency1.make_resource(dependency2)
 
         __call__ method is alias for this method ::
 
-            @autowired(context(resource), dependency1, dependency2)
+            @impl.implement(context(resource))
+            @impl.autowired('dependency1', dependency1)
+            @impl.autowired('dependency2', dependency2)
             @contextlib.contextmanager
             def create_resource(dependency1, dependency2):
                 yield dependency1.make_resource(dependency2)
