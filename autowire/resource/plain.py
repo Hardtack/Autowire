@@ -5,10 +5,10 @@ autowire.resource.plain
 Plain resource implementation
 
 """
-from autowire.base import BaseResource
-from autowire.impl.types import Implementable, Implementation
+from autowire.base import BaseResource, Implementation
+from autowire.impl.implementable import Implementable
 
-from .utils import create_default_impl
+from .utils import default_implementation
 
 
 class Resource(BaseResource, Implementable):
@@ -16,10 +16,9 @@ class Resource(BaseResource, Implementable):
     Resource class of some functionalities like default implementation.
 
     """
-
     def __init__(self, name, namespace):
         super().__init__(name, namespace)
-        self.default_implementation = create_default_impl(name, namespace)
+        self.default_implementation = default_implementation
 
     @property
     def default_implementation(self):

@@ -15,21 +15,11 @@ from .base import BaseContext, BaseResource
 #
 
 
-class ThisResource(BaseResource):
-    @property
-    def default_implementation(self):
-        @contextlib.contextmanager
-        def impl(context: BaseContext):
-            yield self
-
-        return impl
-
-
 class ContextResource(BaseResource):
     @property
     def default_implementation(self):
         @contextlib.contextmanager
-        def impl(context: BaseContext):
+        def impl(resource: BaseResource, context: BaseContext):
             yield context
 
         return impl
@@ -38,9 +28,6 @@ class ContextResource(BaseResource):
 # Resources
 #
 
-
-#: Get resource it self as resource
-this = ThisResource('this', __name__)
 
 #: Current context resource
 context = ContextResource('context', __name__)

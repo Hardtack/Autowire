@@ -12,7 +12,6 @@ Suppose that we have resources like that.
 .. code-block:: python
 
     # in resources.py
-    import contextlib
     from autowire import Resource, impl
 
     from db_engine import DatabaseEngine
@@ -21,15 +20,18 @@ Suppose that we have resources like that.
     db_config = Resource('db_config', __name__)
     db_connection = Resource('db_connection', __name__)
 
-    @impl.plain(db_config, env)
+    @db_config.implement
+    @impl.autowired('env', env)
+    @impl.plain
     def get_db_config(env):
         path = os.path.join('path/to/config', env, 'db.json')
         with open(path) as f:
             config = json.load(f)
         return config
 
-    @impl.contextual(db_connection, db_config)
-    @contextlib.contextmanager
+    @db_connection.implement
+    @impl.autowired('db_config', db_config)
+    @impl.contextmanager
     def open_db_connection(db_config):
         conn = DatabaseEngine(db_config['HOST'], db_config['PORT'])
         try:
@@ -53,7 +55,8 @@ We can change running environment by providing `env` resource
 
     app_context = Context()
 
-    @impl.plain(app_context(env))
+    app_context.provide(env)
+    @impl.plain
     def get_env():
         # Get env from envvar
         return os.environ['APP_ENV']

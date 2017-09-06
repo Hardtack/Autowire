@@ -48,7 +48,7 @@ class BaseResource(object, metaclass=abc.ABCMeta):
         return self.namespace + '.' + self.name
 
     @abstractproperty
-    def default_implementation(self):
+    def default_implementation(self) -> 'Implementation':
         pass
 
     def __repr__(self):
@@ -73,7 +73,31 @@ class BaseContext(object, metaclass=abc.ABCMeta):
     def resolve(self, resource: BaseResource):
         """Resolve resource in this context."""
         impl = self.find_resource_impl(resource)
-        return impl(self)
+        return impl.reify(resource, self)
+
+    def run(self, resource: BaseResource):
+        """
+        Resolve a resource just for side-effect.
+
+        It is useful when you want entry-point resource. ::
+
+            @resource.create
+            @impl.autowire('foo', foo)
+            @impl.autowire('bar', bar)
+            @impl.plain
+            def main(foo, bar):
+                print(foo)
+                print(bar)
+                ...
+
+            ...
+
+            if __name__ == '__main__':
+                context.run(main)
+
+        """
+        with self.resolve(resource) as value:
+            return value
 
     def resolve_all(self, resources):
         """Resolve resources in this context."""
@@ -90,7 +114,7 @@ class BaseContext(object, metaclass=abc.ABCMeta):
                 yield []
         return merged_context(contexts)
 
-    def find_resource_impl(self, resource: BaseResource):
+    def find_resource_impl(self, resource: BaseResource) -> 'Implementation':
         """Find resource implementation from this context and its parents."""
         context = self.provided_by(resource)
         return context.get_implementation(resource)
@@ -130,3 +154,10 @@ class BaseContext(object, metaclass=abc.ABCMeta):
                     return partial(*args, **kwargs)
             return wrapper
         return decorator
+
+
+class Implementation(object, metaclass=abc.ABCMeta):
+    """Base implementation type"""
+    @abc.abstractmethod
+    def reify(self, resource: BaseResource, context: BaseContext):
+        pass

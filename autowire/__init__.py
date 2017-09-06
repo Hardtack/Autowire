@@ -5,9 +5,9 @@ from .resource import Resource
 
 
 __all__ = [
-    'Context',
-    'Resource',
-    'ResourceNotProvidedError',
-    'root_context',
     'impl',
+    'Context',
+    'root_context',
+    'ResourceNotProvidedError',
+    'Resource',
 ]

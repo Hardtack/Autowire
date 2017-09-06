@@ -3,7 +3,7 @@ import contextlib
 import pytest
 
 from autowire import Resource, Context, impl, ResourceNotProvidedError
-from autowire.decorators import globally_shared, shared
+from autowire.decorators import shared
 
 
 def test_shared():
@@ -13,10 +13,11 @@ def test_shared():
 
     count = 0
 
-    @impl.implement(context(counter))
+    @context.provide(counter)
     @shared
+    @impl.implementation
     @contextlib.contextmanager
-    def increase_and_get_count(context):
+    def increase_and_get_count(resource, context):
         nonlocal count
         count += 1
         yield count
@@ -33,7 +34,9 @@ def test_shared_autowire():
     counter = Resource('counter', __name__)
     double = Resource('double', __name__)
 
-    @impl.plain(double, counter)
+    @double.implement
+    @impl.autowired('counter', counter)
+    @impl.plain
     def double_count(counter):
         return counter * 2
 
@@ -41,10 +44,11 @@ def test_shared_autowire():
 
     count = 0
 
-    @impl.implement(context(counter))
+    @context.provide(counter)
     @shared
+    @impl.implementation
     @contextlib.contextmanager
-    def increase_and_get_count(context):
+    def increase_and_get_count(resource, context):
         nonlocal count
         count += 1
         yield count
@@ -64,10 +68,11 @@ def test_globally_shared():
 
     counter = 0
 
-    @impl.implement(number)
-    @globally_shared
+    @number.implement
+    @shared(globally=True)
+    @impl.implementation
     @contextlib.contextmanager
-    def get_next_number(context):
+    def get_next_number(resource, context):
         nonlocal counter
         counter += 1
         yield counter
@@ -85,14 +90,17 @@ def test_globally_shared_failure():
 
     context = Context()
 
-    @impl.plain(number, decorators=[globally_shared])
+    @number.implement
+    @shared(globally=True)
+    @impl.plain
     def get_doubled(number):
         return number * 2
 
     child = Context(context)
 
-    @impl.plain(child(number))
-    def get_one(context):
+    @child.provide(number)
+    @impl.plain
+    def get_one(resource, context):
         return 1
 
     with pytest.raises(ResourceNotProvidedError):

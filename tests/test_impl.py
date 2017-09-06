@@ -1,6 +1,5 @@
 import contextlib
 
-import pytest
 
 from autowire import Context, Resource, impl
 
@@ -9,9 +8,10 @@ def test_implement():
     context = Context()
     resource = Resource('test', __name__)
 
-    @impl.implement(resource)
+    @resource.implement
+    @impl.implementation
     @contextlib.contextmanager
-    def resource_impl(context: Context):
+    def resource_impl(resource, context):
         yield 'Test'
 
     with context.resolve(resource) as value:
@@ -23,13 +23,15 @@ def test_contextual():
     foo = Resource('foo', __name__)
     bar = Resource('bar', __name__)
 
-    @impl.contextual(foo)
+    @foo.implement
+    @impl.contextual
     @contextlib.contextmanager
     def foo_impl():
         yield 'foo'
 
-    @impl.contextual(bar, foo)
-    @contextlib.contextmanager
+    @bar.implement
+    @impl.autowired('foo', foo)
+    @impl.contextmanager
     def bar_impl(foo):
         yield 'bar-' + foo
 
@@ -45,11 +47,14 @@ def test_plain():
     foo = Resource('foo', __name__)
     bar = Resource('bar', __name__)
 
-    @impl.plain(foo)
+    @foo.implement
+    @impl.plain
     def foo_impl():
         return 'foo'
 
-    @impl.plain(bar, foo)
+    @bar.implement
+    @impl.autowired('foo', foo)
+    @impl.plain
     def bar_impl(foo):
         return 'bar-' + foo
 
@@ -58,25 +63,3 @@ def test_plain():
 
     with context.resolve(bar) as value:
         assert 'bar-foo' == value
-
-
-def test_partial():
-    context = Context()
-    foo = Resource('foo', __name__)
-    bar = Resource('bar', __name__)
-
-    @impl.plain(foo)
-    def foo_impl():
-        return 'foo'
-
-    @impl.partial(bar, foo=foo)
-    def bar_impl(number, foo):
-        return foo + '-' + str(number)
-
-    with context.resolve(bar) as f:
-        assert f(1) == 'foo-1'
-        assert f(2) == 'foo-2'
-        assert f(3) == 'foo-3'
-
-    with pytest.raises(TypeError):
-        bar(1)

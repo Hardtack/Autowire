@@ -36,13 +36,6 @@ class RefCounter(object):
         self.decrease(exc_type, exc_value, tb)
 
 
-def apply_decorators(fn, decorators):
-    """Apply multiple decorators at once."""
-    for decorator in decorators:
-        fn = decorator(fn)
-    return fn
-
-
 def as_contextmanager(fn):
     """
     Convert to context manager. ::

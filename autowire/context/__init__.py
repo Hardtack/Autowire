@@ -5,8 +5,7 @@ autowire.context.impl
 Context's implementations
 
 """
-from autowire.base import BaseContext, BaseResource
-from autowire.impl import Implementation
+from autowire.base import BaseContext, BaseResource, Implementation
 
 from .provider import Provider, ImplementationConsumer
 from .root import root_context
@@ -36,28 +35,27 @@ class Context(BaseContext, ImplementationConsumer):
                            implementation: Implementation):
         self.implementations[resource.canonical_name] = implementation
 
-    def provide(self, resource: BaseResource):
+    def provide(self,
+                resource: BaseResource,
+                implementation: Implementation=None):
         """
-        Resource resource's implementation provider which is
-        :class:`Implementable` ::
+        Provide an implementaion for resource in this context. ::
 
-            @autowired(context.provide(resource), dependency1, dependency2)
-            @contextlib.contextmanager
+            context.provide(resource, implementation)
+
+        Or as a decorator ::
+
+            @context.provide(resource)
+            @impl.autowired('dependency1', dependency1)
+            @impl.autowired('dependency2', dependency2)
+            @impl.contextmanager
             def create_resource(dependency1, dependency2):
                 yield dependency1.make_resource(dependency2)
 
-        __call__ method is alias for this method ::
-
-            @autowired(context(resource), dependency1, dependency2)
-            @contextlib.contextmanager
-            def create_resource(dependency1, dependency2):
-                yield dependency1.make_resource(dependency2)
-
         """
+        if implementation is not None:
+            return self.set_implementation(resource, implementation)
         return Provider(resource, self)
-
-    def __call__(self, resource: BaseResource):
-        return self.provide(resource)
 
 
 __all__ = ['Context', 'root_context']
