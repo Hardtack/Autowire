@@ -11,8 +11,8 @@ import functools
 from autowire.base import BaseContext, BaseResource, Implementation
 from autowire.utils import as_contextmanager
 
+from .function import FunctionImplementation
 from .implementable import Implementable
-from .implementation import FunctionImplementation
 
 
 def implement(implementable: Implementable):

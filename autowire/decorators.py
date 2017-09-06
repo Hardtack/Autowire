@@ -6,7 +6,7 @@ Decorators for autowire.
 
 """
 from .helpers import GloballySharedImplementation, SharedImplementation
-from .impl.implementation import FunctionImplementation
+from .impl.function import FunctionImplementation
 
 
 def shared(impl: FunctionImplementation=None, *, globally=False):

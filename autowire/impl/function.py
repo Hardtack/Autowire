@@ -1,8 +1,8 @@
 """
-impl.implementation
-===================
+impl.function
+=============
 
-Implementation classes
+Function implementation classes
 
 """
 import abc

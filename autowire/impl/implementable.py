@@ -7,7 +7,7 @@ Abstract base class for implementable things.
 """
 import abc
 
-from .implementation import Implementation
+from autowire.base import Implementation
 
 
 class Implementable(object, metaclass=abc.ABCMeta):
