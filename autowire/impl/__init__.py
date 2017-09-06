@@ -82,7 +82,34 @@ def plain(fn):
     return FunctionImplementation(fn, evaluator)
 
 
-def autowired(argname, required):
+def autowired(argname_or_required, required=None):
+    """
+    Resolve a required resource and inject into function implementation
+    as keyword argument. ::
+
+        dependency = Resource('foo', __name__)
+
+        @autowired('dependency', dependency)
+        @impl.plain
+        def create_something(dependency):
+            return create(dependency)
+
+    Resource's `name` property will be used by default for keyword name. ::
+
+        dependency = Resource('foo', __name__)
+
+        @autowired(dependency)
+        @impl.plain
+        def create_something(foo):
+            return create(foo)
+
+    """
+    if required is None:
+        argname = argname_or_required.name
+        required = argname_or_required
+    else:
+        argname = argname_or_required
+
     def wrapper(func_impl: FunctionImplementation):
         if not isinstance(func_impl, FunctionImplementation):
             raise ValueError(
@@ -107,4 +134,6 @@ __all__ = [
     'contextual',
     'plain',
     'autowired',
+    'Implementation',
+    'Implementable',
 ]

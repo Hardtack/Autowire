@@ -18,7 +18,14 @@ Evaluator = types.FunctionType
 
 
 class FunctionImplementation(Implementation, metaclass=abc.ABCMeta):
-    """Implementation with wrapping function and evaluator"""
+    """
+    Implementation with wrapping function and evaluator
+
+    :param function: function to be wrapped.
+    :param evaluator: function evaluator for reifying.
+    :type evaluator: (Function, BaseResource, BaseContext) -> ContextManager
+
+    """
 
     def __init__(self, function: types.FunctionType, evaluator: Evaluator):
         super().__init__()

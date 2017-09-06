@@ -12,6 +12,12 @@ from .utils import RefCounter
 
 
 class SharedImplementation(Implementation):
+    """
+    Share implementation in each contexts.
+
+    See :func:`~autowire.decorators.shared` for more details.
+
+    """
     def __init__(self, impl: Implementation):
         super().__init__()
         self.impl = impl
@@ -32,6 +38,12 @@ class SharedImplementation(Implementation):
 
 
 class GloballySharedImplementation(Implementation):
+    """
+    Share implementation in providing context.
+
+    See :func:`~autowire.decorators.shared` for more details.
+
+    """
     def __init__(self, impl: Implementation):
         super().__init__()
         self.impl = impl

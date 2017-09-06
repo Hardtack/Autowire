@@ -12,6 +12,11 @@ from autowire.impl.implementable import Implementable
 
 
 class ImplementationConsumer(object, metaclass=abc.ABCMeta):
+    """
+    Declarative base type for objects that can bind resources with
+    implementation.
+
+    """
     @abc.abstractmethod
     def set_implementation(self, resource: BaseResource,
                            implementation: Implementation):
@@ -19,6 +24,10 @@ class ImplementationConsumer(object, metaclass=abc.ABCMeta):
 
 
 class Provider(Implementable):
+    """
+    Type that can provide implementation to specific resource.
+
+    """
     def __init__(self,
                  resource: BaseResource,
                  consumer: ImplementationConsumer):

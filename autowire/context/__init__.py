@@ -43,6 +43,7 @@ class Context(BaseContext, ImplementationConsumer):
             @impl.implement(context.provide(resource))
             @impl.autowired('dependency1', dependency1)
             @impl.autowired('dependency2', dependency2)
+            @impl.contextual
             @contextlib.contextmanager
             def create_resource(dependency1, dependency2):
                 yield dependency1.make_resource(dependency2)
@@ -52,6 +53,7 @@ class Context(BaseContext, ImplementationConsumer):
             @impl.implement(context(resource))
             @impl.autowired('dependency1', dependency1)
             @impl.autowired('dependency2', dependency2)
+            @impl.contextual
             @contextlib.contextmanager
             def create_resource(dependency1, dependency2):
                 yield dependency1.make_resource(dependency2)

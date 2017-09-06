@@ -12,7 +12,8 @@ __all__ = ['root_context']
 
 class _RootContext(BaseContext):
     """
-    Root context.
+    Root context for all contexts
+
     """
     def get_implementation(self, resource: BaseResource):
         """Get resource implementation from this context."""
