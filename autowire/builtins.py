@@ -39,8 +39,5 @@ class ContextResource(BaseResource):
 #
 
 
-#: Get resource it self as resource
-this = ThisResource('this', __name__)
-
 #: Current context resource
 context = ContextResource('context', __name__)

@@ -10,7 +10,7 @@ def test_resource():
 
     @impl.implement(resource)
     @contextlib.contextmanager
-    def resource_impl(context):
+    def resource_impl(resource, context):
         yield 'Hello'
 
     context = Context()
@@ -22,7 +22,8 @@ def test_resource():
 def test_plain():
     hello = Resource('hello', __name__)
 
-    @impl.plain(hello)
+    @impl.implement(hello)
+    @impl.plain
     def get_resource():
         return 'Hello'
 
@@ -48,7 +49,8 @@ def test_provide():
     parent = Context()
     child = Context(parent)
 
-    @impl.plain(child(env))
+    @impl.implement(child(env))
+    @impl.plain
     def get_env():
         return 'development'
 
@@ -66,11 +68,13 @@ def test_scope():
     parent = Context()
     child = Context(parent)
 
-    @impl.plain(parent(level))
+    @impl.implement(parent(level))
+    @impl.plain
     def parent_level():
         return 1
 
-    @impl.plain(child(level))
+    @impl.implement(child(level))
+    @impl.plain
     def child_level():
         return 2
 
@@ -86,12 +90,12 @@ def test_hello():
 
     @impl.implement(hello)
     @contextlib.contextmanager
-    def hello_impl(context):
+    def hello_impl(resource, context):
         yield 'Hello'
 
     @impl.implement(name)
     @contextlib.contextmanager
-    def name_impl(context):
+    def name_impl(resource, context):
         yield 'John'
 
     context = Context()

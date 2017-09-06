@@ -7,10 +7,10 @@ Resource implementation as a function
 """
 import functools
 
-from autowire.base import BaseResource
-from autowire.impl.types import Implementable, Implementation
+from autowire.base import BaseResource, Implementation
+from autowire.impl.implementable import Implementable
 
-from .utils import create_default_impl
+from .utils import default_implementation
 
 
 class FunctionResource(BaseResource, Implementable):
@@ -26,7 +26,7 @@ class FunctionResource(BaseResource, Implementable):
             namespace = func.__module__
         super().__init__(name, namespace)
         self.func = func
-        self.default_implementation = create_default_impl(name, namespace)
+        self.default_implementation = default_implementation
         functools.update_wrapper(self, func)
 
     @property

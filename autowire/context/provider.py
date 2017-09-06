@@ -7,8 +7,8 @@ Interface for providing resource's implementations.
 """
 import abc
 
-from autowire.base import BaseResource
-from autowire.impl import Implementable, Implementation
+from autowire.base import BaseResource, Implementation
+from autowire.impl.implementable import Implementable
 
 
 class ImplementationConsumer(object, metaclass=abc.ABCMeta):

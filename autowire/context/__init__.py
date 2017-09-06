@@ -5,8 +5,7 @@ autowire.context.impl
 Context's implementations
 
 """
-from autowire.base import BaseContext, BaseResource
-from autowire.impl import Implementation
+from autowire.base import BaseContext, BaseResource, Implementation
 
 from .provider import Provider, ImplementationConsumer
 from .root import root_context

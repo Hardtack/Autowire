@@ -15,8 +15,9 @@ def test_shared():
 
     @impl.implement(context(counter))
     @shared
+    @impl.implementation
     @contextlib.contextmanager
-    def increase_and_get_count(context):
+    def increase_and_get_count(resource, context):
         nonlocal count
         count += 1
         yield count
@@ -33,7 +34,9 @@ def test_shared_autowire():
     counter = Resource('counter', __name__)
     double = Resource('double', __name__)
 
-    @impl.plain(double, counter)
+    @impl.implement(double)
+    @impl.autowired('counter', counter)
+    @impl.plain
     def double_count(counter):
         return counter * 2
 
@@ -43,8 +46,9 @@ def test_shared_autowire():
 
     @impl.implement(context(counter))
     @shared
+    @impl.implementation
     @contextlib.contextmanager
-    def increase_and_get_count(context):
+    def increase_and_get_count(resource, context):
         nonlocal count
         count += 1
         yield count
@@ -66,8 +70,9 @@ def test_globally_shared():
 
     @impl.implement(number)
     @globally_shared
+    @impl.implementation
     @contextlib.contextmanager
-    def get_next_number(context):
+    def get_next_number(resource, context):
         nonlocal counter
         counter += 1
         yield counter
@@ -85,14 +90,17 @@ def test_globally_shared_failure():
 
     context = Context()
 
-    @impl.plain(number, decorators=[globally_shared])
+    @impl.implement(number)
+    @globally_shared
+    @impl.plain
     def get_doubled(number):
         return number * 2
 
     child = Context(context)
 
-    @impl.plain(child(number))
-    def get_one(context):
+    @impl.implement(child(number))
+    @impl.plain
+    def get_one(resource, context):
         return 1
 
     with pytest.raises(ResourceNotProvidedError):
