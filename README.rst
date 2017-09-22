@@ -15,12 +15,6 @@ Autowire
 
 Autowire is lightweight & simple dependency injection library for Python.
 
-You can use dependency injection & resource management without any classes and any magics.
-
-Since python already support nice context manager (`PEP343`_),
-we don't have to any extra interfaces for setting-up & tearing-down resource.
-
-
 .. _PEP343: https://www.python.org/dev/peps/pep-0343/
 
 
@@ -48,9 +42,10 @@ Basic Resource Management
 
     hello = Resource('hello', __name__)
 
-    @impl.implement(hello)
+    @hello.implement
+    @impl.implementation
     @contextmanager
-    def with_hello_message(context):
+    def with_hello_message(resource, context):
         print("Setup hello message")
         try:
             yield "Hello, World!"
@@ -68,10 +63,6 @@ Basic Resource Management
     # Teardown hello message
 
 
-The parameter of `impl` can be any function that takes `Context` as parameter 
-and returns `ContextManager`. (`(Context) -> ContextManager`)
-
-
 Basic Dependency Inejection
 ---------------------------
 
@@ -80,18 +71,19 @@ Basic Dependency Inejection
     number = Resource('number', __name__)
     double = Resource('double', __name__)
 
-    @impl.contextual(double, number)
-    @contextlib.contextmanager
-    def get_double(number):
+    @double.implement
+    @impl.autowired('number', number)
+    @impl.contextmanager
+    def with_doubled(number):
         yield number * 2
 
     context = Context()
 
     # You can provide resource only in specfic context
-    @impl.implement(number)
-    @contextlib.contextmanager
-    def get_one(context):
-        yield 1
+    @context.provide(number)
+    @impl.plain
+    def get_one():
+        return 1
 
     with context.resolve(double) as value:
         print(value)
@@ -117,7 +109,6 @@ Suppose that we have resources like that.
 .. code-block:: python
 
     # in resources.py
-    import contextlib
     from autowire import Resource, impl
 
     from db_engine import DatabaseEngine
@@ -126,15 +117,18 @@ Suppose that we have resources like that.
     db_config = Resource('db_config', __name__)
     db_connection = Resource('db_connection', __name__)
 
-    @impl.plain(db_config, env)
+    @db_config.implement
+    @impl.autowired('env', env)
+    @impl.plain
     def get_db_config(env):
         path = os.path.join('path/to/config', env, 'db.json')
         with open(path) as f:
             config = json.load(f)
         return config
 
-    @impl.contextual(db_connection, db_config)
-    @contextlib.contextmanager
+    @db_connection.implement
+    @imp.autowired('db_config', db_config)
+    @impl.contextmanager
     def open_db_connection(db_config):
         conn = DatabaseEngine(db_config['HOST'], db_config['PORT'])
         try:
@@ -158,7 +152,8 @@ We can change running environment by providing `env` resource
 
     app_context = Context()
 
-    @impl.plain(app_context(env))
+    @app_context.provide(env)
+    @impl.plain
     def get_env():
         # Get env from envvar
         return os.environ['APP_ENV']

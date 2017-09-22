@@ -18,15 +18,17 @@ class RefCounter(object):
         self.value = None
 
     def increase(self):
-        self.count += 1
-        if self.count == 1:
+        if self.count == 0:
             self.value = self.contextmanager.__enter__()
+        self.count += 1
 
     def decrease(self, exc_type, exc_value, tb):
-        if self.count == 1:
+        if self.count == 0:
+            raise RuntimeError("decreasing counter that has no references")
+        self.count -= 1
+        if self.count == 0:
             self.value = 0
             self.contextmanager.__exit__(exc_type, exc_value, tb)
-        self.count -= 1
 
     def __enter__(self):
         self.increase()
