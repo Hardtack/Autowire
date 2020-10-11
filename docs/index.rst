@@ -1,7 +1,7 @@
 Autowire
 ========
 
-.. image:: https://img.shields.io/pypi/v/Autowire.svg 
+.. image:: https://img.shields.io/pypi/v/Autowire.svg
     :alt: PyPI Package Version
     :target: https://pypi.python.org/pypi/Autowire
 
@@ -12,11 +12,11 @@ Autowire
 .. image:: https://img.shields.io/travis/Hardtack/Autowire.svg
     :alt: Build Status
     :target: https://travis-ci.org/Hardtack/Autowire
-    
+
 .. image:: https://img.shields.io/github/stars/hardtack/autowire.svg?style=social&label=Star
     :alt: GitHub Stars
     :target: https://github.com/Hardtack/Autowire
-    
+
 
 Autowire is light & simple dependency injection and resource management library for Python.
 
@@ -34,18 +34,17 @@ This is how to define resources in `Autowire`.
 .. code-block:: python
 
     import contextlib
-    from autowire import Resource, impl
+    from autowire import Resource
 
     # Define resources
-    db_connection_factory = Resource('db_connection_factory', __name__)
-    db_connection = Resource('db_connection', __name__)
+    db_connection_factory = Resource("db_connection_factory", __name__)
+    db_connection = Resource("db_connection", __name__)
 
     # Implement db_connection resource
-    # db_connection is resource to be implemented,
-    # db_connection_factory is resource to be injected.
-    @db_connection.implement
-    @impl.autowired(db_connection_factory)
-    @impl.contextmanager
+    # db_connection is a resource to be implemented,
+    # db_connection_factory is a resource to be injected.
+    @db_connection.contextual(db_connection_factory)
+    @contextlib.contextmanager
     def with_db_connection(db_connection_factory):
         conn = db_connection_factory()
         try:
@@ -62,10 +61,9 @@ This is how to resolve resource implementations.
 
     from autowire import Context
 
-    context = Context()
-
-    with context.resolve(db_connection) as conn:
-        conn.execute('SELECT * FROM ...')
+    with Context() as context:
+        conn = context.resolve(db_connection)
+        conn.execute("SELECT * FROM ...")
         ...
 
 

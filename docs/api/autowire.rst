@@ -1,71 +1,77 @@
 autowire package
 ================
 
-Subpackages
------------
-
-.. toctree::
-
-    autowire.context
-    autowire.impl
-    autowire.resource
-
 Submodules
 ----------
 
-autowire\.base module
----------------------
+autowire.base\_context module
+-----------------------------
 
-.. automodule:: autowire.base
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodule:: autowire.base_context
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-autowire\.builtins module
--------------------------
+autowire.base\_resource module
+------------------------------
 
-.. automodule:: autowire.builtins
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodule:: autowire.base_resource
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-autowire\.decorators module
----------------------------
-
-.. automodule:: autowire.decorators
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-autowire\.exc module
---------------------
-
-.. automodule:: autowire.exc
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-autowire\.helpers module
+autowire.builtins module
 ------------------------
 
-.. automodule:: autowire.helpers
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodule:: autowire.builtins
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-autowire\.utils module
-----------------------
+autowire.context module
+-----------------------
 
-.. automodule:: autowire.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodule:: autowire.context
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
+autowire.exc module
+-------------------
+
+.. automodule:: autowire.exc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+autowire.implementation module
+------------------------------
+
+.. automodule:: autowire.implementation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+autowire.provider module
+------------------------
+
+.. automodule:: autowire.provider
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+autowire.resource module
+------------------------
+
+.. automodule:: autowire.resource
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
 
 .. automodule:: autowire
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
