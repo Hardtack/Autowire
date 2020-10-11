@@ -1,108 +1,154 @@
-from typing import Any, Callable, ContextManager, Optional, TypeVar
+"""
+autowire.base
+=============
 
-from autowire.base_context import BaseContext
-from autowire.base_resource import BaseResource
-from autowire.builtins import context
-from autowire.implementation import (
-    ContextManagerImplementation,
-    PlainFunctionImplementation,
+Base definitions of autowire.
+
+"""
+from __future__ import annotations
+
+import collections
+import contextlib
+import sys
+from typing import (
+    Any,
+    ContextManager,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    TypeVar,
 )
-from autowire.resource import Resource
+
+from autowire.base_container import BaseContainer
+from autowire.base_resource import BaseResource
+from autowire.provider import ResourceProvider
 
 R = TypeVar("R")
 
 
-class Context(BaseContext):
+class NotPooled(Exception):
     """
-    Resource management context
+    Internal class for fiding pooled resource
+    """
+
+    pass
+
+
+class Context(ResourceProvider, ContextManager["Context"]):
+    """
+    Resource management context base class
 
     """
 
-    def __init__(self, parent: Optional[BaseContext] = None):
-        super().__init__(parent)
-        self._set_builtins()
+    def __init__(self, container: BaseContainer, parent: Optional[Context]):
+        super().__init__()
+        self.container = container
+        self.parent = parent
+        self.resource_pool: collections.OrderedDict[
+            BaseResource[Any], Tuple[Any, ContextManager[Any]]
+        ] = collections.OrderedDict()
+        self.children: List[Context] = []
 
-    def _set_builtins(self):
-        # Current context
-        @self.plain(context)
-        def get_context():
-            return self
-
-    def plain(
-        self,
-        resource: Resource[R],
-        *arg_resources: BaseResource[Any],
-        **kwarg_resources: BaseResource[Any],
-    ):
+    def drain(self):
         """
-        Provide resource's implementation with plain function
-
-        arg_resources and kwarg_resources will be used for dependency injection.
-
-        ::
-
-            config = Resource("config", __name__)
-            connection_pool = Resource("connection_pool", __name__)
-            db_connection = Resource("db_connection", __name__)
-
-            context = Context()
-
-            @context.plain(db_connection, connection_pool, config=config)
-            def get_db_connection(connection_pool: Pool, *, config: dict) -> Connection:
-                # ...
+        Drain all resources resolved by this context.
 
         """
 
-        def decorator(fn: Callable[..., R]):
-            self.provide(
-                resource,
-                PlainFunctionImplementation(
-                    fn, arg_resources, kwarg_resources
-                ),
-            )
-            return fn
+        def children_drainer(children: List[Context]):
+            if not children:
+                return
+            child = children.pop(0)
+            try:
+                children_drainer(children)
+            finally:
+                child.drain()
 
-        return decorator
+        items = list(self.resource_pool.items())
 
-    def contextual(
-        self,
-        resource: Resource[R],
-        *arg_resources: BaseResource[Any],
-        **kwarg_resources: BaseResource[Any],
-    ):
+        def drainer(
+            items: list[BaseResource[Any], Tuple[Any, ContextManager[Any]]]
+        ):
+            if not items:
+                # Drain all children
+                children_drainer(self.children)
+                return
+            resource, (resolve, manager) = items.pop(0)
+            try:
+                drainer(items)
+            except Exception:
+                type_, value, traceback = sys.exc_info()
+                self.resource_pool.pop(resource)
+                manager.__exit__(type_, value, traceback)
+                raise
+            else:
+                self.resource_pool.pop(resource)
+                manager.__exit__(None, None, None)
+
+        drainer(items)
+
+    @contextlib.contextmanager
+    def child(self, preload: Sequence[BaseResource] = ()):
         """
-        Provide resource's implementation with context manager
+        Create a child context ::
 
-        arg_resources and kwarg_resources will be used for dependency injection.
+            with context.child() as child:
+                value = child.resolve(resource)
+                ...
 
-        ::
+        :param preload: resources to be preloaded
+        """
+        with Context(self.container, self) as child:
+            self.children.append(child)
+            # Preload
+            for resource in preload:
+                child.resolve(resource)
+            yield child
 
-            db_connection = Resource("db_connection", __name__)
-            db_transaction = Resource("transaction", __name__)
+    #
+    # Resource provider implementation
+    #
 
-            context = Context()
-
-            @context.contextual(db_transaction, db_connection)
-            @contextlib.contextmanager
-            def begin_trasaction(db_connection: Connection):
-                tx = db_connection.begin()
-                try:
-                    yield tx
-                except Exception:
-                    tx.rollback()
-                    raise
-                finally:
-                    tx.commit()
+    def resolve(self, resource: BaseResource[R]) -> R:
+        """
+        Resolve resource in this context.
 
         """
+        try:
+            return self._find_resource(resource)
+        except NotPooled:
+            pass
 
-        def decorator(manager: Callable[..., ContextManager[R]]):
-            self.provide(
-                resource,
-                ContextManagerImplementation(
-                    manager, arg_resources, kwarg_resources
-                ),
-            )
-            return manager
+        # Create new resource if pooled resource not found
+        impl = self.container.find_implementation(resource)
+        manager = impl.reify(resource, self)
+        resolved = manager.__enter__()
+        # throw into resource pool
+        self.resource_pool[resource] = (resolved, manager)
+        return resolved
 
-        return decorator
+    #
+    # Context manager implementation
+    #
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type_, value, traceback):
+        self.drain()
+
+    #
+    # Privates
+    #
+
+    def _find_resource(self, resource: BaseResource[R]) -> R:
+        # Find resolved resource from resource pool
+        if resource in self.resource_pool:
+            resolved, manager = self.resource_pool[resource]
+            return resolved
+        # Find from parent
+        if self.parent is not None:
+            return self.parent._find_resource(resource)
+        else:
+            raise NotPooled()
