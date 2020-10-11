@@ -2,6 +2,7 @@
 -e .
 # testing
 pytest
+pytest-cov
 tox
 # linting
 mypy

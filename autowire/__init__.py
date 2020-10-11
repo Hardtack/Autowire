@@ -1,12 +1,9 @@
-from . import impl
-from .context import Context, root_context
+from .context import Context
 from .exc import ResourceNotProvidedError
 from .resource import Resource
 
 __all__ = [
-    "impl",
     "Context",
-    "root_context",
-    "ResourceNotProvidedError",
     "Resource",
+    "ResourceNotProvidedError",
 ]
