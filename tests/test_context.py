@@ -2,84 +2,12 @@ import contextlib
 
 import pytest
 
-from autowire.context import Context
-from autowire.exc import ResourceNotProvidedError
-from autowire.implementation import Implementation
+from autowire.container import Container
 from autowire.resource import Resource
 
 
-def test_provide():
-    context = Context()
-
-    foo = Resource("foo", __name__)
-
-    class SimpleImplementation(Implementation):
-        @contextlib.contextmanager
-        def reify(self, resource, provider):
-            assert foo == resource
-            assert provider == context
-            yield "FOO"
-
-    with context:
-        with pytest.raises(ResourceNotProvidedError):
-            context.resolve(foo)
-
-        context.provide(foo, SimpleImplementation())
-        assert "FOO" == context.resolve(foo)
-
-
-def test_plain():
-    context = Context()
-
-    foo = Resource("foo", __name__)
-    bar = Resource("bar", __name__)
-
-    @context.plain(bar)
-    def get_bar():
-        return "BAR"
-
-    @context.plain(foo, bar)
-    def get_foo(bar: str):
-        return f"FOO.{bar}"
-
-    with context:
-        "BAR" == context.resolve(bar)
-        "FOO" == context.resolve(foo)
-
-    # and functions should be left as plain functions
-    assert "FOO.bar" == get_foo("bar")
-    assert "BAR" == get_bar()
-
-
-def test_contextual():
-    context = Context()
-
-    foo = Resource("foo", __name__)
-    bar = Resource("bar", __name__)
-
-    @context.contextual(bar)
-    @contextlib.contextmanager
-    def with_bar():
-        yield "BAR"
-
-    @context.contextual(foo, bar)
-    @contextlib.contextmanager
-    def with_foo(bar: str):
-        yield f"FOO.{bar}"
-
-    with context:
-        "BAR" == context.resolve(bar)
-        "FOO" == context.resolve(foo)
-
-    # and context managers should be left as context managers
-    with with_foo("bar") as foo_value:
-        assert "FOO.bar" == foo_value
-    with with_bar() as bar_value:
-        assert "BAR" == bar_value
-
-
 def test_pool():
-    context = Context()
+    container = Container()
 
     count = 0
 
@@ -96,7 +24,7 @@ def test_pool():
     def next_squred_counter(counter: int):
         return counter ** 2
 
-    with context:
+    with container.context() as context:
         assert 1 == context.resolve(counter)
         assert 1 == context.resolve(counter)
         assert 1 == context.resolve(counter)
@@ -105,7 +33,7 @@ def test_pool():
         assert 1 == context.resolve(squared_counter)
         assert 1 == context.resolve(squared_counter)
 
-    with context:
+    with container.context() as context:
         assert 2 == context.resolve(counter)
         assert 2 == context.resolve(counter)
         assert 2 == context.resolve(counter)
@@ -116,7 +44,7 @@ def test_pool():
 
 
 def test_drain():
-    context = Context()
+    container = Container()
 
     refcount = 0
 
@@ -132,14 +60,14 @@ def test_drain():
         finally:
             refcount -= 1
 
-    with context:
+    with container.context() as context:
         assert 1 == context.resolve(reference)
         assert 1 == refcount
     assert 0 == refcount
 
 
 def test_drain_exception():
-    context = Context()
+    container = Container()
 
     foo = Resource("foo", __name__)
     bar = Resource("bar", __name__)
@@ -166,60 +94,47 @@ def test_drain_exception():
         finally:
             1 / 0
 
-    assert "foo" == context.resolve(foo)
-    assert "bar" == context.resolve(bar)
-    assert foo_alive is True
     with pytest.raises(ZeroDivisionError):
-        context.drain()
+        with container.context() as context:
+            assert "foo" == context.resolve(foo)
+            assert "bar" == context.resolve(bar)
+            assert foo_alive is True
     assert foo_alive is False
 
 
-def test_default_implemenation():
-    context = Context()
-
-    foo = Resource("foo", __name__)
-
-    @foo.plain()
-    def get_foo():
-        return "FOO"
-
-    class SimpleImplementation(Implementation):
-        @contextlib.contextmanager
-        def reify(self, resource, provider):
-            yield "FOO-2"
-
-    assert "FOO" == context.resolve(foo)
-
-    context.provide(foo, SimpleImplementation())
-    assert "FOO" == context.resolve(foo)
-
-
-def test_inheritance():
+def test_child():
     foo = Resource("foo", __name__)
     bar = Resource("bar", __name__)
 
-    with Context() as parent:
+    container = Container()
 
-        @parent.plain(foo, bar)
-        def get_foo(bar: str):
-            return f"foo.{bar}"
+    foo_refs = 0
+    bar_refs = 0
 
-        @parent.plain(bar)
-        def get_bar():
-            return "bar"
+    @container.plain(foo)
+    def get_foo():
+        nonlocal foo_refs
+        foo_refs += 1
+        return f"foo-{foo_refs}"
 
-        assert "foo.bar" == parent.resolve(foo)
+    @container.plain(bar)
+    def get_bar():
+        nonlocal bar_refs
+        bar_refs += 1
+        return f"bar-{bar_refs}"
 
-        with Context(parent) as child:
+    with container.context(preload=[foo]) as parent:
+        assert 1 == foo_refs
+        assert "foo-1" == parent.resolve(foo)
 
-            @child.plain(bar)
-            def get_child_bar():
-                return "bar2"
+        with parent.child() as child1:
+            assert "foo-1" == child1.resolve(foo)
+            assert "bar-1" == child1.resolve(bar)
 
-            assert "bar2" == child.resolve(bar)
-            assert "bar" == parent.resolve(bar)
+        with parent.child(preload=[bar]) as child2:
+            assert 2 == bar_refs
+            assert "foo-1" == child2.resolve(foo)
+            assert "bar-2" == child2.resolve(bar)
 
-            # `foo` was implemented in parent context.
-            # So `foo` must not be depend on child's `bar`
-            assert "foo.bar" == child.resolve(foo)
-            assert "foo.bar" == parent.resolve(foo)
+    assert 1 == foo_refs
+    assert 2 == bar_refs
