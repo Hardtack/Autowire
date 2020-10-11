@@ -64,33 +64,33 @@ This is equivalent to
     def implementaion():
         yield "Hello!"
 
-Context
--------
+Container
+---------
 
-Context is a resource implementation container.
+Context dependency injection & resource implementation provider
 
-You can provide different context object for each context, so that you can configure running environment,
+You can provide different container for each environment, so that you can configure running environment,
 testing options, injecting mock-ups.
 
 You can define context like this
 
 .. code-block:: python
 
-    from autowire import Context
+    from autowire import Container
 
-    context = Context()
+    container = Container()
 
 Each contexts can have parent context.
 
 .. code-block:: python
 
-    child_context = Context(context)
+    child_container = Container(container)
 
-Providing Implementation to context
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Providing Implementation to the container
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can provide an implementation for the resource by using
-:meth:`~autowire.base_context.BaseContext.provide` method.
+:meth:`~autowire.base_container.BaseContainer.provide` method.
 
 .. code-block:: python
 
@@ -103,17 +103,17 @@ You can provide an implementation for the resource by using
         def reify(self, resource, context):
             yield "some-value"
 
-    child_context.provide(basic, BasicImplementation())
+    child_container.provide(basic, BasicImplementation())
 
 Actually, you don't have to make a subclass of :class:`~autowire.implementation.Implementation` for each resource.
-:meth:`~autowire.context.Context.plain`, :meth:`~autowire.context.Context.contextual` provides similar functionalities
+:meth:`~autowire.base_container.BaseContainer.plain`, :meth:`~autowire.base_container.BaseContainer.contextual` provides similar functionalities
 to :class:`~autowire.resource.Resource`
 
 You can replace above example with
 
 .. code-block:: python
 
-    @child_context.contextual(basic)
+    @child_container.contextual(basic)
     @contextlib.contextmanager
     def with_basic():
         yield "some-value"
@@ -121,20 +121,17 @@ You can replace above example with
 Almost same with :meth:`autowire.resource.Resource.contextual` but you have to pass the resource as the first argument.
 
 
-Resolving Resource
-~~~~~~~~~~~~~~~~~~
+Container
+~~~~~~~~~
 
-Resources can have different implementations for each contexts.
-This is how to resolve implementation of them.
+To reify your resource implementation, you have to use :class:`~autowire.context.Context`.
+
+You can get a root context by using :meth:`~autowire.container.Container.context`
 
 .. code-block:: python
 
-    with context:
+    with container.context() as context:
         value = context.resolve(basic)
-        print(value)
-
-    with child_context:
-        value = child_context.resolve(basic)
         print(value)
 
 The output will be like this ::
@@ -142,7 +139,8 @@ The output will be like this ::
     Enter
     Value
     Leave
-    some-value
+
+Since :meth:`~autowire.container.Container.context` is a context manager, you should use this method with ``with`` statement.
 
 When there's no implementaion to be provided, it will raise :class:`~autowire.exc.ResourceNotProvidedError`
 
@@ -150,7 +148,7 @@ When there's no implementaion to be provided, it will raise :class:`~autowire.ex
 
     null = Resource("null", __name__)
 
-    with context:
+    with container.context() as context:
         context.resolve(null)  # raise ResourceNotProvidedError
 
 Resource Management
@@ -178,6 +176,25 @@ is equivalent to
         value = context.resolve(basic)
         print(value)
 
+Child context
+-------------
+
+Contexts are nestable. You can hold some resources on your parent context and keep use them.
+
+.. code-block:: python
+
+    with container.context() as context:
+        pool = context.resolve(global_connection_pool)
+        connection = pool.get_connection()
+
+        with context.child() as child:
+            # This is same with pool above and retained until parent context be drained
+            pool2 = child.resolve(global_connection_pool)
+
+            # But this will be releases on child context be drained
+            tx = child.resolve(transaction)
+
+
 Dependency Inejection
 ---------------------
 
@@ -192,11 +209,3 @@ Just pass depending resources to the decorator
     @hello.plain(basic)
     def get_hello(basic: str):
         return f"Hello, {basic}"
-
-
-Builtins
---------
-
-There are some builtin resources provided by this package.
-
-See :mod:`autowire.builtins` for more details.

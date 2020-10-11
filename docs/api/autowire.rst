@@ -4,10 +4,10 @@ autowire package
 Submodules
 ----------
 
-autowire.base\_context module
------------------------------
+autowire.base\_container module
+-------------------------------
 
-.. automodule:: autowire.base_context
+.. automodule:: autowire.base_container
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,10 +20,10 @@ autowire.base\_resource module
    :undoc-members:
    :show-inheritance:
 
-autowire.builtins module
-------------------------
+autowire.container module
+-------------------------
 
-.. automodule:: autowire.builtins
+.. automodule:: autowire.container
    :members:
    :undoc-members:
    :show-inheritance:
