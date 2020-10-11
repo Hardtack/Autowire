@@ -1,0 +1,11 @@
+# Self install
+-e .
+# testing
+pytest
+tox
+# linting
+mypy
+flake8
+# hinting
+jedi
+rope
