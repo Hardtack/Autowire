@@ -76,8 +76,6 @@ You can find more guides from following list:
    :maxdepth: 1
 
    getting-started
-   use-cases
-   shared
 
 
 API References
