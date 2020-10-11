@@ -5,14 +5,8 @@ autowire.builtins
 Builtin resources.
 
 """
-import contextlib
+from autowire.base_context import BaseContext
+from autowire.resource import Resource
 
-from . import impl, resource
-from .base import BaseContext, BaseResource
-
-
-@resource.create
-@impl.implementation
-@contextlib.contextmanager
-def context(resource: BaseResource, context: BaseContext):
-    yield context
+#: Resource that indicating current context
+context: Resource[BaseContext] = Resource("context", __name__)

@@ -1,15 +1,10 @@
-from autowire import Context, impl, resource
-from autowire.builtins import context as context_resource
+from autowire import Context
+from autowire.builtins import context
 
 
 def test_context():
-    @resource.create
-    @impl.autowired('context', context_resource)
-    @impl.plain
-    def get_context(context):
-        return context
-
-    context = Context()
-
-    with context.resolve(get_context) as resolved:
-        assert context == resolved
+    with Context() as current_context:
+        assert current_context is current_context.resolve(context)
+        with Context(current_context) as child_context:
+            assert child_context is child_context.resolve(context)
+        assert current_context is current_context.resolve(context)
