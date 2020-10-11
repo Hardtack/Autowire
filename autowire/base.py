@@ -35,7 +35,7 @@ class BaseResource(object, metaclass=abc.ABCMeta):
         """
         Resource name validation.
         """
-        return '.' not in name
+        return "." not in name
 
     @property
     def canonical_name(self) -> str:
@@ -45,17 +45,15 @@ class BaseResource(object, metaclass=abc.ABCMeta):
         It's <namespace>.<name>
 
         """
-        return self.namespace + '.' + self.name
+        return self.namespace + "." + self.name
 
     @abstractproperty
-    def default_implementation(self) -> 'Implementation':
+    def default_implementation(self) -> "Implementation":
         pass
 
     def __repr__(self):
         return "{cls}({name!r}, {namespace!r})".format(
-            cls=type(self).__name__,
-            name=self.name,
-            namespace=self.namespace
+            cls=type(self).__name__, name=self.name, namespace=self.namespace
         )
 
 
@@ -66,7 +64,7 @@ class BaseContext(object, metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def provided_by(self, resource: BaseResource) -> 'BaseContext':
+    def provided_by(self, resource: BaseResource) -> "BaseContext":
         """Find context that provides resource."""
         pass
 
@@ -112,9 +110,10 @@ class BaseContext(object, metaclass=abc.ABCMeta):
                         yield [value] + rest_values
             else:
                 yield []
+
         return merged_context(contexts)
 
-    def find_resource_impl(self, resource: BaseResource) -> 'Implementation':
+    def find_resource_impl(self, resource: BaseResource) -> "Implementation":
         """Find resource implementation from this context and its parents."""
         context = self.provided_by(resource)
         return context.get_implementation(resource)
@@ -136,6 +135,7 @@ class BaseContext(object, metaclass=abc.ABCMeta):
             # Baz
 
         """
+
         def decorator(fn):
             @functools.wraps(fn)
             def wrapper(*args, **kwargs):
@@ -143,21 +143,27 @@ class BaseContext(object, metaclass=abc.ABCMeta):
                 keyword_keys = [k for k, _ in keyword_items]
                 keyword_resources = [v for _, v in keyword_items]
 
-                with self.resolve_all(positionals) as resolved_args, \
-                        self.resolve_all(
-                            keyword_resources) as resolved_kwarg_values:
+                with self.resolve_all(
+                    positionals
+                ) as resolved_args, self.resolve_all(
+                    keyword_resources
+                ) as resolved_kwarg_values:
                     resolved_kwargs = {}
                     for k, v in zip(keyword_keys, resolved_kwarg_values):
                         resolved_kwargs[k] = v
                     partial = functools.partial(
-                        fn, *resolved_args, **resolved_kwargs)
+                        fn, *resolved_args, **resolved_kwargs
+                    )
                     return partial(*args, **kwargs)
+
             return wrapper
+
         return decorator
 
 
 class Implementation(object, metaclass=abc.ABCMeta):
     """Base implementation type"""
+
     @abc.abstractmethod
     def reify(self, resource: BaseResource, context: BaseContext):
         pass

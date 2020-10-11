@@ -22,6 +22,7 @@ def implementation(fn):
     The implementation can be called same as original function.
 
     """
+
     @contextlib.contextmanager
     def evaluator(fn, resource: BaseResource, context: BaseContext):
         with fn(resource, context) as value:
@@ -57,6 +58,7 @@ def contextual(fn):
     The implementation can be called same as original function.
 
     """
+
     @contextlib.contextmanager
     def evaluator(fn, resource: BaseResource, context: BaseContext):
         with fn() as value:
@@ -72,6 +74,7 @@ def plain(fn):
     The implementation can be called same as original function.
 
     """
+
     @as_contextmanager
     def evaluator(fn, resource: BaseResource, context: BaseContext):
         return fn()
@@ -93,6 +96,7 @@ def partial(fn):
     The implementation can be called same as original function.
 
     """
+
     @as_contextmanager
     def evaluator(fn, resource: BaseResource, context: BaseContext):
         return fn
@@ -140,18 +144,21 @@ def autowired(argname_or_required, required=None):
                 kwargs = {argname: arg}
                 new_function = functools.partial(fn, **kwargs)
                 with func_impl.evaluator(
-                        new_function, resource, context) as value:
+                    new_function, resource, context
+                ) as value:
                     yield value
+
         return FunctionImplementation(func_impl.function, evaluator)
+
     return wrapper
 
 
 __all__ = [
-    'implement',
-    'implementation',
-    'contextual',
-    'plain',
-    'autowired',
-    'Implementation',
-    'Implementable',
+    "implement",
+    "implementation",
+    "contextual",
+    "plain",
+    "autowired",
+    "Implementation",
+    "Implementable",
 ]

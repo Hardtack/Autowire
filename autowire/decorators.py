@@ -11,7 +11,7 @@ from .helpers import GloballySharedImplementation, SharedImplementation
 from .impl.function import FunctionImplementation
 
 
-def shared(impl: FunctionImplementation=None, *, globally=False):
+def shared(impl: FunctionImplementation = None, *, globally=False):
     """
     Convert implementation to shared resource implementation.
 
@@ -111,4 +111,5 @@ def shared(impl: FunctionImplementation=None, *, globally=False):
                 yield value
 
         return FunctionImplementation(impl.function, evaluator)
+
     return decorator

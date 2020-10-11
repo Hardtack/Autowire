@@ -7,7 +7,7 @@ Context's implementations
 """
 from autowire.base import BaseContext, BaseResource, Implementation
 
-from .provider import Provider, ImplementationConsumer
+from .provider import ImplementationConsumer, Provider
 from .root import root_context
 
 
@@ -16,7 +16,7 @@ class Context(BaseContext, ImplementationConsumer):
     Context implementation.
     """
 
-    def __init__(self, parent: BaseContext=root_context):
+    def __init__(self, parent: BaseContext = root_context):
         self.parent = parent
         self.implementations = {}
 
@@ -31,13 +31,14 @@ class Context(BaseContext, ImplementationConsumer):
         elif self.parent is not None:
             return self.parent.provided_by(resource)
 
-    def set_implementation(self, resource: BaseResource,
-                           implementation: Implementation):
+    def set_implementation(
+        self, resource: BaseResource, implementation: Implementation
+    ):
         self.implementations[resource.canonical_name] = implementation
 
-    def provide(self,
-                resource: BaseResource,
-                implementation: Implementation=None):
+    def provide(
+        self, resource: BaseResource, implementation: Implementation = None
+    ):
         """
         Provide an implementaion for resource in this context. ::
 
@@ -58,4 +59,4 @@ class Context(BaseContext, ImplementationConsumer):
         return Provider(resource, self)
 
 
-__all__ = ['Context', 'root_context']
+__all__ = ["Context", "root_context"]

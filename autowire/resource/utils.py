@@ -8,7 +8,7 @@ Resource utilties.
 import contextlib
 
 from autowire import impl
-from autowire.base import BaseResource, BaseContext
+from autowire.base import BaseContext, BaseResource
 from autowire.exc import ResourceNotProvidedError
 
 
@@ -19,5 +19,6 @@ def default_implementation(resource: BaseResource, context: BaseContext):
     raise ResourceNotProvidedError(
         "No such resource {resource}".format(
             resource=resource.canonical_name,
-        ))
+        )
+    )
     yield None

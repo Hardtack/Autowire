@@ -40,8 +40,8 @@ class FunctionResource(BaseResource, Implementable):
     def implement(self, implementation: Implementation):
         """Set implementation of implementable. ::
 
-            @resource.implement
-        
+        @resource.implement
+
         """
         self.default_implementation = implementation
         return implementation

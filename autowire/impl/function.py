@@ -10,8 +10,7 @@ import contextlib
 import functools
 import types
 
-from autowire.base import BaseResource, BaseContext, Implementation
-
+from autowire.base import BaseContext, BaseResource, Implementation
 
 # (FunctionType, BaseResource, BaseContext) -> ContextManager
 Evaluator = types.FunctionType

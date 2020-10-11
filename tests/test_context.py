@@ -1,17 +1,17 @@
 import pytest
 
-from autowire import Resource, Context, ResourceNotProvidedError, impl
+from autowire import Context, Resource, ResourceNotProvidedError, impl
 
 
 def test_provide():
-    env = Resource('env', __name__)
+    env = Resource("env", __name__)
 
     parent = Context()
     child = Context(parent)
 
     @impl.plain
     def get_env():
-        return 'development'
+        return "development"
 
     child.provide(env, get_env)
 
@@ -20,22 +20,22 @@ def test_provide():
             pass
 
     with child.resolve(env) as value:
-        assert 'development' == value
+        assert "development" == value
 
 
 def test_partial():
-    name = Resource('name', __name__)
-    env = Resource('env', __name__)
+    name = Resource("name", __name__)
+    env = Resource("env", __name__)
 
     context = Context()
 
     @impl.plain
     def get_env():
-        return 'development'
+        return "development"
 
     @impl.plain
     def get_name():
-        return 'name'
+        return "name"
 
     context.provide(name, get_name)
     context.provide(env, get_env)
@@ -44,4 +44,4 @@ def test_partial():
     def runnable(name, phrase, env):
         return "{}, {}-{}!".format(phrase, name, env)
 
-    assert 'Hello, name-development!' == runnable("Hello")
+    assert "Hello, name-development!" == runnable("Hello")

@@ -7,7 +7,7 @@ Root context.
 """
 from autowire.base import BaseContext, BaseResource
 
-__all__ = ['root_context']
+__all__ = ["root_context"]
 
 
 class _RootContext(BaseContext):
@@ -15,6 +15,7 @@ class _RootContext(BaseContext):
     Root context for all contexts
 
     """
+
     def get_implementation(self, resource: BaseResource):
         """Get resource implementation from this context."""
         return resource.default_implementation

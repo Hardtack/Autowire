@@ -2,13 +2,18 @@ import contextlib
 
 import pytest
 
-from autowire import Resource, Context, impl, ResourceNotProvidedError, \
-    resource
+from autowire import (
+    Context,
+    Resource,
+    ResourceNotProvidedError,
+    impl,
+    resource,
+)
 from autowire.decorators import shared
 
 
 def test_shared():
-    counter = Resource('counter', __name__)
+    counter = Resource("counter", __name__)
 
     context = Context()
 
@@ -32,11 +37,11 @@ def test_shared():
 
 
 def test_shared_autowire():
-    counter = Resource('counter', __name__)
-    double = Resource('double', __name__)
+    counter = Resource("counter", __name__)
+    double = Resource("double", __name__)
 
     @double.implement
-    @impl.autowired('counter', counter)
+    @impl.autowired("counter", counter)
     @impl.plain
     def double_count(counter):
         return counter * 2
@@ -63,7 +68,7 @@ def test_shared_autowire():
 
 
 def test_globally_shared():
-    number = Resource('number', __name__)
+    number = Resource("number", __name__)
 
     context = Context()
 
@@ -86,7 +91,7 @@ def test_globally_shared():
 
 
 def test_globally_shared_failure():
-    number = Resource('number', __name__)
+    number = Resource("number", __name__)
 
     context = Context()
 

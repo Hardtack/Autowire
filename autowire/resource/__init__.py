@@ -8,11 +8,13 @@ Resource implementations.
 from autowire import impl
 from autowire.base import Implementation
 
-from .plain import Resource
 from .function import FunctionResource
+from .plain import Resource
 
 
-def create(implementation: Implementation=None, *, name=None, namespace=None):
+def create(
+    implementation: Implementation = None, *, name=None, namespace=None
+):
     """
     Create a resource with implementation. ::
 
@@ -29,19 +31,21 @@ def create(implementation: Implementation=None, *, name=None, namespace=None):
     The default name and namespace will be resolved from decorated function.
 
     """
+
     def decorator(implementation):
         resource = FunctionResource(
             implementation, name=name, namespace=namespace
         )
         resource.implement(implementation)
         return resource
+
     if impl is not None:
         return decorator(implementation)
     return decorator
 
 
 __all__ = [
-    'Resource',
-    'FunctionResource',
-    'create',
+    "Resource",
+    "FunctionResource",
+    "create",
 ]

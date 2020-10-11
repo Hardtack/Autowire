@@ -17,9 +17,11 @@ class ImplementationConsumer(object, metaclass=abc.ABCMeta):
     implementation.
 
     """
+
     @abc.abstractmethod
-    def set_implementation(self, resource: BaseResource,
-                           implementation: Implementation):
+    def set_implementation(
+        self, resource: BaseResource, implementation: Implementation
+    ):
         pass
 
 
@@ -28,9 +30,10 @@ class Provider(Implementable):
     Type that can provide implementation to specific resource.
 
     """
-    def __init__(self,
-                 resource: BaseResource,
-                 consumer: ImplementationConsumer):
+
+    def __init__(
+        self, resource: BaseResource, consumer: ImplementationConsumer
+    ):
         super().__init__()
         self.resource = resource
         self.consumer = consumer

@@ -15,7 +15,10 @@ PY35 = MAJOR == 3 and MINOR >= 5
 
 # abc.abstractproperty was deprecated since Python 3.3
 if PY33:
+
     def abstractproperty(getter):
         return property(abc.abstractmethod(getter))
+
+
 else:
     abstractproperty = abc.abstractproperty

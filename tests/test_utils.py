@@ -17,6 +17,7 @@ def test_refcounter():
             yield value
         finally:
             value -= 1
+
     counter = RefCounter(increase_and_get())
 
     counter.increase()
@@ -75,7 +76,7 @@ def test_refcounter():
 def test_as_contextmanager():
     @as_contextmanager
     def foo():
-        return 'bar'
+        return "bar"
 
     with foo() as value:
-        assert 'bar' == value
+        assert "bar" == value

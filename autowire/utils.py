@@ -11,6 +11,7 @@ import functools
 
 class RefCounter(object):
     """Preserve context until it has any references."""
+
     def __init__(self, contextmanager):
         super().__init__()
         self.count = 0
@@ -52,8 +53,10 @@ def as_contextmanager(fn):
         def foo(name):
             yield 'Hello, {}'.format(name)
     """
+
     @functools.wraps(fn)
     @contextlib.contextmanager
     def wrapper(*args, **kwargs):
         yield fn(*args, **kwargs)
+
     return wrapper

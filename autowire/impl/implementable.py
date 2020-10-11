@@ -12,6 +12,7 @@ from autowire.base import Implementation
 
 class Implementable(object, metaclass=abc.ABCMeta):
     """Some type that can be implemented"""
+
     @abc.abstractmethod
     def implement(self, implementation: Implementation) -> Implementation:
         """

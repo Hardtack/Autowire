@@ -18,6 +18,7 @@ class SharedImplementation(Implementation):
     See :func:`~autowire.decorators.shared` for more details.
 
     """
+
     def __init__(self, impl: Implementation):
         super().__init__()
         self.impl = impl
@@ -44,6 +45,7 @@ class GloballySharedImplementation(Implementation):
     See :func:`~autowire.decorators.shared` for more details.
 
     """
+
     def __init__(self, impl: Implementation):
         super().__init__()
         self.impl = impl
