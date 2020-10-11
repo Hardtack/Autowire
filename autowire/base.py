@@ -9,8 +9,6 @@ import abc
 import contextlib
 import functools
 
-from autowire._compat import abstractproperty
-
 
 class BaseResource(object, metaclass=abc.ABCMeta):
     """
@@ -47,7 +45,8 @@ class BaseResource(object, metaclass=abc.ABCMeta):
         """
         return self.namespace + "." + self.name
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def default_implementation(self) -> "Implementation":
         pass
 
