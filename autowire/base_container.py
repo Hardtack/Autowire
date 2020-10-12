@@ -20,6 +20,8 @@ from autowire.implementation import (
 from autowire.resource import Resource
 
 R = TypeVar("R")
+F = TypeVar("F", bound=Callable[..., Any])
+C = TypeVar("C", bound=Callable[..., ContextManager[Any]])
 
 
 class BaseContainer(abc.ABC):
@@ -68,7 +70,7 @@ class BaseContainer(abc.ABC):
         resource: Resource[R],
         *arg_resources: BaseResource[Any],
         **kwarg_resources: BaseResource[Any],
-    ):
+    ) -> Callable[[F], F]:
         """
         Provide resource's implementation with plain function
 
@@ -88,13 +90,11 @@ class BaseContainer(abc.ABC):
 
         """
 
-        def decorator(fn: Callable[..., R]):
-            self.provide(
-                resource,
-                PlainFunctionImplementation(
-                    fn, arg_resources, kwarg_resources
-                ),
+        def decorator(fn: F) -> F:
+            impl: Implementation[R] = PlainFunctionImplementation(
+                fn, arg_resources, kwarg_resources
             )
+            self.provide(resource, impl)
             return fn
 
         return decorator
@@ -104,7 +104,7 @@ class BaseContainer(abc.ABC):
         resource: Resource[R],
         *arg_resources: BaseResource[Any],
         **kwarg_resources: BaseResource[Any],
-    ):
+    ) -> Callable[[C], C]:
         """
         Provide resource's implementation with context manager
 
@@ -130,13 +130,11 @@ class BaseContainer(abc.ABC):
                     tx.commit()
         """
 
-        def decorator(manager: Callable[..., ContextManager[R]]):
-            self.provide(
-                resource,
-                ContextManagerImplementation(
-                    manager, arg_resources, kwarg_resources
-                ),
+        def decorator(manager: C) -> C:
+            impl: Implementation[R] = ContextManagerImplementation(
+                manager, arg_resources, kwarg_resources
             )
+            self.provide(resource, impl)
             return manager
 
         return decorator

@@ -10,6 +10,8 @@ from autowire.implementation import (
 )
 
 R = TypeVar("R")
+F = TypeVar("F", bound=Callable[..., Any])
+C = TypeVar("C", bound=Callable[..., ContextManager[Any]])
 
 
 class Resource(BaseResource[R]):
@@ -32,7 +34,7 @@ class Resource(BaseResource[R]):
         self,
         *arg_resources: BaseResource[Any],
         **kwarg_resources: BaseResource[Any],
-    ):
+    ) -> Callable[[F], F]:
         """
         Set default implementation with plain function
 
@@ -50,7 +52,7 @@ class Resource(BaseResource[R]):
 
         """
 
-        def decorator(fn: Callable[..., R]):
+        def decorator(fn: F) -> F:
             self.default_implementation = PlainFunctionImplementation(
                 fn, arg_resources, kwarg_resources
             )
@@ -62,7 +64,7 @@ class Resource(BaseResource[R]):
         self,
         *arg_resources: BaseResource[Any],
         **kwarg_resources: BaseResource[Any],
-    ):
+    ) -> Callable[[C], C]:
         """
         Set default implementation with context manager
 
@@ -87,7 +89,7 @@ class Resource(BaseResource[R]):
 
         """
 
-        def decorator(manager: Callable[..., ContextManager[R]]):
+        def decorator(manager: C) -> C:
             self.default_implementation = ContextManagerImplementation(
                 manager, arg_resources, kwarg_resources
             )

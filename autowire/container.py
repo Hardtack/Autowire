@@ -1,5 +1,5 @@
 import contextlib
-from typing import Sequence
+from typing import Iterator, Sequence
 
 from autowire.base_container import BaseContainer
 from autowire.base_resource import BaseResource
@@ -13,7 +13,9 @@ class Container(BaseContainer):
     """
 
     @contextlib.contextmanager
-    def context(self, preload: Sequence[BaseResource] = ()):
+    def context(
+        self, preload: Sequence[BaseResource] = ()
+    ) -> Iterator[Context]:
         """
         Get a DI context from this container. ::
 

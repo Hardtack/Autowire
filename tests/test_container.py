@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import contextlib
 
 import pytest
 
 from autowire.container import Container
+from autowire.context import Context
 from autowire.exc import ResourceNotProvidedError
 from autowire.implementation import Implementation
 from autowire.resource import Resource
@@ -27,10 +30,12 @@ def test_provide():
 
 
 def test_plain():
+
     container = Container()
 
     foo = Resource("foo", __name__)
     bar = Resource("bar", __name__)
+    baz: Resource[Baz] = Resource("baz", __name__)
 
     @container.plain(bar)
     def get_bar():
@@ -40,13 +45,26 @@ def test_plain():
     def get_foo(bar: str):
         return f"FOO.{bar}"
 
-    with container.context() as context:
+    @container.plain(baz, foo, bar)
+    class Baz(object):
+        def __init__(self, foo, bar):
+            super().__init__()
+            self.foo = foo
+            self.bar = bar
+
+    with container.context() as context:  # type: Context
         "BAR" == context.resolve(bar)
         "FOO" == context.resolve(foo)
+        "FOO" == context.resolve(baz).foo
+        "BAR" == context.resolve(baz).bar
 
     # and functions should be left as plain functions
     assert "FOO.bar" == get_foo("bar")
     assert "BAR" == get_bar()
+    baz_instance = Baz("foo", "bar")
+    assert isinstance(baz_instance, Baz)
+    assert "foo" == baz_instance.foo
+    assert "bar" == baz_instance.bar
 
 
 def test_contextual():

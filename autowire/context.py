@@ -13,6 +13,7 @@ import sys
 from typing import (
     Any,
     ContextManager,
+    Iterator,
     List,
     Optional,
     Sequence,
@@ -89,7 +90,7 @@ class Context(ResourceProvider, ContextManager["Context"]):
         drainer(items)
 
     @contextlib.contextmanager
-    def child(self, preload: Sequence[BaseResource] = ()):
+    def child(self, preload: Sequence[BaseResource] = ()) -> Iterator[Context]:
         """
         Create a child context ::
 
