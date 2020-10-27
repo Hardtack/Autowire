@@ -9,10 +9,6 @@ Autowire
     :alt: Documentation Status
     :target: http://autowire.readthedocs.org/en/latest/?badge=latest
 
-.. image:: https://img.shields.io/travis/Hardtack/Autowire.svg
-    :alt: Build Status
-    :target: https://travis-ci.org/Hardtack/Autowire
-
 Autowire is lightweight & simple dependency injection library for Python.
 
 .. _PEP343: https://www.python.org/dev/peps/pep-0343/
