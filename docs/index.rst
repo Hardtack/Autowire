@@ -9,6 +9,10 @@ Autowire
     :alt: Documentation Status
     :target: http://autowire.readthedocs.org/en/latest/?badge=latest
 
+.. image:: https://codecov.io/gh/Hardtack/Autowire/branch/develop/graph/badge.svg?token=Xr943HH5xi
+    :alt: Codcov Coverage
+    :target: https://codecov.io/gh/Hardtack/Autowire
+
 .. image:: https://img.shields.io/github/stars/hardtack/autowire.svg?style=social&label=Star
     :alt: GitHub Stars
     :target: https://github.com/Hardtack/Autowire
