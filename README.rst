@@ -9,9 +9,9 @@ Autowire
     :alt: Documentation Status
     :target: http://autowire.readthedocs.org/en/latest/?badge=latest
 
-.. image:: https://img.shields.io/travis/Hardtack/Autowire.svg
-    :alt: Build Status
-    :target: https://travis-ci.org/Hardtack/Autowire
+.. image:: https://codecov.io/gh/Hardtack/Autowire/branch/develop/graph/badge.svg?token=Xr943HH5xi
+    :alt: Codcov Coverage
+    :target: https://codecov.io/gh/Hardtack/Autowire
 
 Autowire is lightweight & simple dependency injection library for Python.
 
