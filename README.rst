@@ -33,6 +33,8 @@ http://autowire.readthedocs.io/en/latest/
 Run Test
 --------
 
+Just use `tox <https://tox.readthedocs.io>`_ for testing.
+
 .. code-block:: bash
 
-    $ python setup.py test
+    $ tox
