@@ -11,5 +11,5 @@ setup(
     url="https://github.com/hardtack/autowire",
     license="MIT LICENSE",
     keywords=["dependency-injection"],
-    package_data={"autowire": ["autowire/py.typed"]},
+    package_data={"autowire": ["py.typed"]},
 )
