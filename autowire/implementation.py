@@ -78,3 +78,21 @@ class PlainFunctionImplementation(ContextManagerImplementation[R]):
 
         super().__init__(manager, arg_resources, kwarg_resources)
         self.fn = fn
+
+
+class ConstantImplementation(ContextManagerImplementation[R]):
+    """
+    Use constant as an implementation
+
+    """
+
+    def __init__(
+        self,
+        value: R
+    ):
+        @contextlib.contextmanager
+        def manager():
+            yield value
+
+        super().__init__(manager, (), {})
+        self.value = value
