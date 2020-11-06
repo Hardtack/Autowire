@@ -31,7 +31,7 @@ class Implementation(Generic[R], metaclass=abc.ABCMeta):
 
 class ContextManagerImplementation(Implementation[R]):
     """
-    Use context manager as an implementaion
+    Use context manager as an implementation
 
     """
 
@@ -62,7 +62,7 @@ class ContextManagerImplementation(Implementation[R]):
 
 class PlainFunctionImplementation(ContextManagerImplementation[R]):
     """
-    Use plain function as an implementaion
+    Use plain function as an implementation
 
     """
 

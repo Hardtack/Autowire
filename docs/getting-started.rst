@@ -38,7 +38,7 @@ You can set default implementation with context manager to resource by :meth:`~a
 
     @basic.contextual()
     @contextlib.contextmanager
-    def implementaion():
+    def implementation():
         print("Enter")
         try:
             yield "Value"
@@ -50,7 +50,7 @@ Or you can use a plain function for implementation by using :meth:`~autowire.res
 .. code-block:: python
 
     @basic.plain()
-    def implementaion():
+    def implementation():
         return "Hello!"
 
 This is equivalent to
@@ -61,7 +61,7 @@ This is equivalent to
 
     @basic.contextual()
     @contextlib.contextmanager
-    def implementaion():
+    def implementation():
         yield "Hello!"
 
 Container
@@ -142,7 +142,7 @@ The output will be like this ::
 
 Since :meth:`~autowire.container.Container.context` is a context manager, you should use this method with ``with`` statement.
 
-When there's no implementaion to be provided, it will raise :class:`~autowire.exc.ResourceNotProvidedError`
+When there's no implementation to be provided, it will raise :class:`~autowire.exc.ResourceNotProvidedError`
 
 .. code-block:: python
 
