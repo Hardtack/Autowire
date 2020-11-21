@@ -29,7 +29,7 @@ class Resource(BaseResource[R]):
 
     def __init__(self, name: str, namespace: str):
         super().__init__(name, namespace)
-        self.default_implementation: Optional[Implementation] = None
+        self.default_implementation: Optional[Implementation[R]] = None
 
     def plain(
         self,
