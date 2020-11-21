@@ -121,8 +121,8 @@ You can replace above example with
 Almost same with :meth:`autowire.resource.Resource.contextual` but you have to pass the resource as the first argument.
 
 
-Container
-~~~~~~~~~
+Context
+~~~~~~~
 
 To reify your resource implementation, you have to use :class:`~autowire.context.Context`.
 
