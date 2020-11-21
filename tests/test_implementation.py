@@ -3,6 +3,7 @@ import contextlib
 from autowire.implementation import (
     ContextManagerImplementation,
     PlainFunctionImplementation,
+    ConstantImplementation,
 )
 from autowire.provider import ResourceProvider
 from autowire.resource import Resource
@@ -10,7 +11,7 @@ from autowire.resource import Resource
 
 def test_plain():
     """
-    Test for plain function implementation
+    Test for plain implementations
 
     """
 
@@ -35,6 +36,10 @@ def test_plain():
     )
     with implementation.reify(resource_c, MockProvider()) as c:
         assert "foo.bar.baz" == c
+
+    implementation = ConstantImplementation("mocked value")
+    with implementation.reify(resource_a, MockProvider()) as c:
+        assert "mocked value" == c
 
 
 def test_contextual():
