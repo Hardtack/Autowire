@@ -94,6 +94,18 @@ def test_contextual():
         assert "BAR" == bar_value
 
 
+def test_provide_constant():
+    container = Container()
+
+    foo = Resource("foo", __name__)
+    value = "FOO"
+
+    container.provide_constant(foo, value)
+
+    with container.context() as context:
+        assert value == context.resolve(foo)
+
+
 def test_default_implemenation():
     container = Container()
 

@@ -1,9 +1,10 @@
 import contextlib
 
+from autowire.exc import ResourceNotProvidedError
 from autowire.implementation import (
+    ConstantImplementation,
     ContextManagerImplementation,
     PlainFunctionImplementation,
-    ConstantImplementation,
 )
 from autowire.provider import ResourceProvider
 from autowire.resource import Resource
@@ -37,14 +38,10 @@ def test_plain():
     with implementation.reify(resource_c, MockProvider()) as c:
         assert "foo.bar.baz" == c
 
-    implementation = ConstantImplementation("mocked value")
-    with implementation.reify(resource_a, MockProvider()) as c:
-        assert "mocked value" == c
-
 
 def test_contextual():
     """
-    Test for contet manager implementation
+    Test for context manager implementation
 
     """
 
@@ -71,3 +68,23 @@ def test_contextual():
     )
     with implementation.reify(resource_c, MockProvider()) as c:
         assert "foo.bar.baz" == c
+
+
+def test_constant():
+    """
+    Test for constant implementation
+
+    """
+
+    resource = Resource("foo", "test")
+    value = "FOO"
+
+    class MockProvider(ResourceProvider):
+        def resolve(self, resource):
+            raise ResourceNotProvidedError(
+                "No resources provided to this provider"
+            )
+
+    implementation = ConstantImplementation(value)
+    with implementation.reify(resource, MockProvider()) as reified:
+        assert value == reified

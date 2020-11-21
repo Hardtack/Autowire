@@ -4,6 +4,7 @@ from typing import Any, Callable, ContextManager, Optional, TypeVar
 
 from autowire.base_resource import BaseResource
 from autowire.implementation import (
+    ConstantImplementation,
     ContextManagerImplementation,
     Implementation,
     PlainFunctionImplementation,
@@ -28,7 +29,7 @@ class Resource(BaseResource[R]):
 
     def __init__(self, name: str, namespace: str):
         super().__init__(name, namespace)
-        self.default_implementation: Optional[Implementation] = None
+        self.default_implementation: Optional[Implementation[R]] = None
 
     def plain(
         self,
@@ -36,7 +37,7 @@ class Resource(BaseResource[R]):
         **kwarg_resources: BaseResource[Any],
     ) -> Callable[[F], F]:
         """
-        Set default implementation with plain function
+        Set the default implementation with plain function
 
         arg_resources and kwarg_resources will be used for dependency injection.
 
@@ -66,7 +67,7 @@ class Resource(BaseResource[R]):
         **kwarg_resources: BaseResource[Any],
     ) -> Callable[[C], C]:
         """
-        Set default implementation with context manager
+        Set the default implementation with context manager
 
         arg_resources and kwarg_resources will be used for dependency injection.
 
@@ -96,3 +97,17 @@ class Resource(BaseResource[R]):
             return manager
 
         return decorator
+
+    def set_constant(self, constant: R):
+        """
+        Set the default implementation with constant implementation
+        that holds given ``constant`` as a value.
+
+        ::
+
+            global_config = Resource("global_config", __name__)
+
+            global_config.set_constant({"DB_TIMEOUT": 30})
+
+        """
+        self.default_implementation = ConstantImplementation(constant)
