@@ -64,6 +64,12 @@ This is equivalent to
     def implementation():
         yield "Hello!"
 
+If you just want provide a constant value for a resource, use :meth:`~autowire.resource.Resource.set_constant`
+
+.. code-block:: python
+
+    basic.set_constant("Hello!")
+
 Container
 ---------
 
@@ -119,6 +125,12 @@ You can replace above example with
         yield "some-value"
 
 Almost same with :meth:`autowire.resource.Resource.contextual` but you have to pass the resource as the first argument.
+
+The Container version of :meth:`~autowire.resource.Resource.set_constant` is :meth:`~autowire.base_container.BaseContainer.provide_constant`.
+
+.. code-block:: python
+
+    child_container.provide_constant(basic, "some-value")
 
 
 Context
