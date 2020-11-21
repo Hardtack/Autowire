@@ -3,6 +3,7 @@ import contextlib
 import pytest
 
 from autowire.implementation import (
+    ConstantImplementation,
     ContextManagerImplementation,
     PlainFunctionImplementation,
 )
@@ -87,3 +88,20 @@ def test_contextual():
     # And with_c must be left as a plain context manager
     with with_c("bar", b="foo") as c:
         assert "bar.foo.baz" == c
+
+
+def test_constant():
+    """
+    Test for contet manager implementation
+
+    """
+
+    resource = Resource("foo", "test")
+    value = "FOO"
+
+    resource.set_constant(value)
+
+    assert resource.default_implementation is not None
+    impl = resource.default_implementation
+    assert isinstance(impl, ConstantImplementation)
+    assert impl.value == value

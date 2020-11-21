@@ -13,6 +13,7 @@ from typing import Any, Callable, ContextManager, Dict, Optional, TypeVar
 from autowire.base_resource import BaseResource
 from autowire.exc import ResourceNotProvidedError
 from autowire.implementation import (
+    ConstantImplementation,
     ContextManagerImplementation,
     Implementation,
     PlainFunctionImplementation,
@@ -138,3 +139,19 @@ class BaseContainer(abc.ABC):
             return manager
 
         return decorator
+
+    def provide_constant(self, resource: Resource[R], constant: R):
+        """
+        Provide resource's implementation with constant implementation
+        that holds given ``constant`` as a value.
+
+        ::
+
+            global_config = Resource("global_config", __name__)
+
+            container = Container()
+
+            container.provide_constant(global_config, {"DB_TIMEOUT": 30})
+
+        """
+        self.provide(resource, ConstantImplementation(constant))
