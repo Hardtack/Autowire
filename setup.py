@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
     name="Autowire",
     packages=setuptools.find_packages(exclude=["tests"]),
-    version="1.1.2-dev",
+    version="1.1.3",
     description="Simple dependency injection.",
     author="Choi Geonu",
     author_email="6566gun@gmail.com",
